@@ -15,6 +15,9 @@ It provides a fast, modern, and scalable frontend setup with strong typing and u
 
 ---
 
-- 📦 Run the project `npm run dev`
+- 📦 Project Setup
+   - Clone Repo: `git clone https://github.com/Sawrozzz/Digo-Care-Portal.git`
+   - Install Dependencies: `npm install`
+   - Run Project: `npm run dev`
 
 
