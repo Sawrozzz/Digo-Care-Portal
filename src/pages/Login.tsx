@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-import { HeartPulse, HeartIcon } from "lucide-react";
+import {  HeartIcon } from "lucide-react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -10,10 +10,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      <div className="hidden md:flex w-1/2 bg-linear-to-br from-emerald-400 to-teal-600 text-white flex-col justify-center items-center px-12">
+      <div className="hidden md:flex w-1/2 bg-linear-to-br from-white/10 to-emerald-700 text-white flex-col justify-center items-center px-12">
         <div className="flex flex-col justify-center items-center space-y-6">
-          <div className="flex justify-center">
-            <HeartPulse className="w-54 h-54" />
+          <div className="flex justify-center max-h-96 max-w-96">
+            <img src="admin_logo3.png"  />
           </div>
 
           <h1 className="text-6xl font-bold">DigoCare Admin Panel</h1>
@@ -43,7 +43,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 placeholder="admin@healthcare.com"
-                className="w-full px-4 py-3 border border-emerald-500 rounded-lg focus:outline-none"
+                className="w-full px-4 py-3 border border-emerald-700 rounded-lg focus:outline-none"
                 required
               />
             </div>
@@ -55,7 +55,7 @@ export default function LoginPage() {
               <input
                 type="password"
                 placeholder="••••••••"
-                className="w-full px-4 py-3 border border-emerald-500 rounded-lg focus:outline-none"
+                className="w-full px-4 py-3 border border-emerald-700 rounded-lg focus:outline-none"
                 required
               />
             </div>
