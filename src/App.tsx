@@ -1,11 +1,17 @@
+import { Route, Routes } from "react-router-dom";
+
+import HomePage from "./pages/Home";
+import LoginPage from "./pages/Login";
 
 function App() {
+  const isLoggedIn = false;
 
   return (
-    <>
-    <h1 className="text-center text-5xl font-bold">DEGOO HEALTH</h1>
-    </>
-  )
+    <Routes>
+      <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} />} />
+      <Route path="/login" element={<LoginPage />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
