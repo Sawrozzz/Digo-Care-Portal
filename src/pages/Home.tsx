@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { CustomButton } from "../components/custom/Button";
 
 type LoginProps = {
   isLoggedIn: boolean;
@@ -17,10 +18,19 @@ export default function HomePage({ isLoggedIn }: LoginProps) {
 
       <div>
         {!isLoggedIn && (
-          <button className="border h-full w-full" onClick={handleOnClick}>
+          <CustomButton
+            className="text-white w-32 cursor-pointer"
+            onClick={handleOnClick}
+          >
             Login Here
-          </button>
+          </CustomButton>
         )}
+        <CustomButton
+          variantType="secondary"
+          className="text-white w-32 cursor-pointer"
+        >
+          Sadcn button
+        </CustomButton>
       </div>
     </div>
   );
