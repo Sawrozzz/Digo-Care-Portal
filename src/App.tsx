@@ -1,17 +1,31 @@
-import { Route, Routes } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import HomePage from "./pages/Home";
+import AdminPageList from "./modules/admin/AdminPageList";
+import DashboardPageList from "./modules/dashboard/DashboardPageList";
 import LoginPage from "./pages/Login";
+import MainNav from "./components/custom/MainNav";
 
-function App() {
-  const isLoggedIn = false;
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <MainNav />,
+    children: [
+      {
+        path: "admins",
+        element: <AdminPageList />,
+      },
+      {
+        path: "dashboard",
+        element: <DashboardPageList />,
+      },
+    ],
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+]);
 
-  return (
-    <Routes>
-      <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} />} />
-      <Route path="/login" element={<LoginPage />} />
-    </Routes>
-  );
+export default function App() {
+  return <RouterProvider router={router} />;
 }
-
-export default App;
