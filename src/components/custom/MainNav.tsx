@@ -8,7 +8,7 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "../ui/sidebar";
-import { TeamSwitcher } from "../ui/team-switcher";
+import { CompanySwitcher } from "./CompanySwitcher";
 
 import { Outlet } from "react-router-dom";
 import { NavMain } from "../ui/nav-main";
@@ -20,7 +20,7 @@ const data = {
     email: "admin@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
+  companies: [
     {
       name: "Company 1",
       logo: GalleryVerticalEnd,
@@ -65,7 +65,7 @@ export default function MainNav({
     >
       <Sidebar collapsible="offcanvas" {...props}>
         <SidebarHeader>
-          <TeamSwitcher teams={data.teams} />
+          <CompanySwitcher companies={data.companies} />
         </SidebarHeader>
         <SidebarContent>
           <NavMain items={data.navMain} />
