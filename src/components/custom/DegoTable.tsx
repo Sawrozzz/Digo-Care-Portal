@@ -1,4 +1,4 @@
-"use client";
+
 
 import { useState, useMemo } from "react";
 import {
@@ -79,14 +79,11 @@ export function DegoTable<TData, TValue>({
     autoResetPageIndex:false
   });
 
-    console.log("Current Page Size:", table.getState().pagination.pageSize); //its ok
-    console.log("Rows on current page:", table.getRowModel().rows.length);
-
   return (
     <div className="w-full space-y-4 px-4">
       <div className="flex items-center justify-between">
-        <div className="relative w-72">
-          <IconSearch className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <div className="relative w-72 ">
+          <IconSearch className="absolute left-2.5 top-2.5 h-4 w-4  text-green-500" />
           <Input
             placeholder={placeholder}
             value={
@@ -95,7 +92,7 @@ export function DegoTable<TData, TValue>({
             onChange={(event) =>
               table.getColumn(searchKey)?.setFilterValue(event.target.value)
             }
-            className="pl-8"
+            className="pl-8 border-green-400 focus:border-green-400"
           />
         </div>
         <CustomButton onClick={onAddData} size="sm" className="cursor-pointer">
@@ -105,7 +102,7 @@ export function DegoTable<TData, TValue>({
 
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className=" bg-green-200">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -157,8 +154,9 @@ export function DegoTable<TData, TValue>({
                         onValueChange={(value) => {
                             table.setPageSize(Number(value));
                         }}
+          
                     >
-                        <SelectTrigger className="h-8 w-17.5">
+                        <SelectTrigger className="h-8 w-17.5 border-green-400">
                           <SelectValue placeholder={table.getState().pagination.pageSize.toString()} />
                         </SelectTrigger>
                         <SelectContent side="top">
@@ -178,6 +176,7 @@ export function DegoTable<TData, TValue>({
                     </div>
                     <Button
                         variant="outline"
+                        className="border-green-400"
                         size="sm"
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
@@ -186,6 +185,7 @@ export function DegoTable<TData, TValue>({
                     </Button>
                     <Button
                         variant="outline"
+                        className="border-green-400"
                         size="sm"
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}

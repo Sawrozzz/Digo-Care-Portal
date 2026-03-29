@@ -5,9 +5,9 @@ import type { Admin } from "./adminAttributes";
 import {
   IconCircleCheckFilled,
   IconCircleRectangleFilled,
-  IconEdit,
-  IconTrash,
 } from "@tabler/icons-react";
+
+import { Pencil, Trash2Icon } from "lucide-react";
 
 export const adminColumns: ColumnDef<Admin>[] = [
   {
@@ -33,7 +33,7 @@ export const adminColumns: ColumnDef<Admin>[] = [
         {row.original.status === "active" ? (
           <IconCircleCheckFilled color="green" />
         ) : (
-            <IconCircleRectangleFilled color="red"/>
+          <IconCircleRectangleFilled color="red" />
         )}
         {row.original.status}
       </Badge>
@@ -44,11 +44,11 @@ export const adminColumns: ColumnDef<Admin>[] = [
     header: "Actions",
     cell: () => (
       <div className="flex gap-2">
-        <button onClick={() => alert("Edit")}>
-          <IconEdit size={20} color="green" className=" cursor-pointer" />
+        <button onClick={() => alert("Edit")} title="Edit">
+          <Pencil size={16} color="green" className=" cursor-pointer" />
         </button>
-        <button onClick={() => alert("Delete")}>
-          <IconTrash size={20} color="red" className="cursor-pointer" />
+        <button onClick={() => alert("Delete")} title="Delete">
+          <Trash2Icon size={16} color="red" className="cursor-pointer" />
         </button>
       </div>
     ),
