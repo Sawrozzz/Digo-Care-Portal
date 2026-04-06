@@ -1,9 +1,10 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import AdminPageList from "./modules/admin/AdminPageList";
-import DashboardPageList from "./modules/dashboard/DashboardPageList";
 import LoginPage from "./pages/Login";
 import MainNav from "./components/custom/MainNav";
+import ProtectedRoute from "./routes/ProtectedRoutes";
+import DashboardWrapper from "./routes/DashboardWrapper";
 
 const router = createBrowserRouter([
   {
@@ -12,11 +13,19 @@ const router = createBrowserRouter([
     children: [
       {
         path: "admins",
-        element: <AdminPageList />,
+        element: (
+          <ProtectedRoute requiredRole="super_admin">
+            <AdminPageList />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "dashboard",
-        element: <DashboardPageList />,
+        element: (
+          <ProtectedRoute>
+            <DashboardWrapper />
+          </ProtectedRoute>
+        ),
       },
     ],
   },
@@ -29,4 +38,3 @@ const router = createBrowserRouter([
 export default function App() {
   return <RouterProvider router={router} />;
 }
-  
