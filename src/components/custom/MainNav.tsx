@@ -1,4 +1,4 @@
-import { IconDashboard, IconUserShield } from "@tabler/icons-react";
+import { IconDashboard, IconUserShield, IconBrandOffice } from "@tabler/icons-react";
 import { GalleryVerticalEnd, AudioWaveform, Command } from "lucide-react";
 import {
   SidebarInset,
@@ -12,7 +12,7 @@ import { CompanySwitcher } from "./CompanySwitcher";
 
 import { Outlet } from "react-router-dom";
 import { NavMain } from "../ui/nav-main";
-import { NavUser } from "../ui/nav-user";
+import UserNav from "./UserNav";
 
 const data = {
   user: {
@@ -44,7 +44,12 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: "Admins",
+      title: "Company",
+      url: "/companies",
+      icon: IconBrandOffice,
+    },
+    {
+      title: "Admin",
       url: "/admins",
       icon: IconUserShield,
     },
@@ -71,7 +76,7 @@ export default function MainNav({
           <NavMain items={data.navMain} />
         </SidebarContent>
         <SidebarFooter>
-          <NavUser user={data.user} />
+          <UserNav />
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>

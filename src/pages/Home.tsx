@@ -8,7 +8,7 @@ type LoginProps = {
 export default function HomePage({ isLoggedIn }: LoginProps) {
   const navigate = useNavigate();
   const handleOnClick = () => {
-    navigate("login");
+    navigate("/login");
   };
   return (
     <div className="flex justify-center flex-col items-center">

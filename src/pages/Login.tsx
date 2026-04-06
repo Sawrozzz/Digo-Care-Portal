@@ -1,10 +1,28 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { HeartIcon } from "lucide-react";
 
+import { useAuthStore } from "../zustand/authStore";
+
 export default function LoginPage() {
+  const login = useAuthStore((state) => state.login);
+  const loading = useAuthStore((state) => state.loading);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const handleLoginIn = () => {
+  const handleLoginIn = async (e: any) => {
+    e.preventDefault();
+    try {
+      console.log("Wokring")
+      await login(email, password);
+      alert("Login successfull");
+      navigate("/dashboard");
+    } catch (err: any) {
+      console.log(err);
+    }
     navigate("/dashboard");
   };
 
@@ -35,13 +53,15 @@ export default function LoginPage() {
             Sign in to your account
           </h2>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleLoginIn}>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-2">
                 Email
               </label>
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@healthcare.com"
                 className="w-full px-4 py-3 border border-emerald-700 rounded-lg focus:outline-none"
               />
@@ -53,17 +73,19 @@ export default function LoginPage() {
               </label>
               <input
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full px-4 py-3 border border-emerald-700 rounded-lg focus:outline-none"
               />
             </div>
 
             <button
-              onClick={handleLoginIn}
+              disabled={loading}
               type="submit"
               className="w-full cursor-pointer bg-emerald-500 hover:bg-emerald-700 text-white py-3 rounded-lg font-medium transition duration-200"
             >
-              Sign In
+              {loading ? "Logging In...." : "Login"}
             </button>
           </form>
         </div>
