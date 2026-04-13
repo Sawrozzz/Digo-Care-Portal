@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import dayjs from "dayjs";
+
 export const toFormData = (data: Record<string, any>) => {
   const formData = new FormData();
 
@@ -22,4 +24,39 @@ export const toFormData = (data: Record<string, any>) => {
   });
 
   return formData;
+};
+
+export const decodeTokenFromHeader = (authHeader: Record<string, any>) => {
+  if (authHeader) {
+    const token = authHeader?.split(" ")[1];
+    return token;
+  } else return null;
+};
+
+export const toDateFormat = (dateStr: string) => {
+  return dayjs(dateStr, "MM DD YYYY");
+};
+
+export const parseCompanyResponse = (apiResponse: any) => {
+  if (!apiResponse || !Array.isArray(apiResponse.data)) {
+    return [];
+  }
+  return apiResponse.data.map((item: any) => {
+    const attr = item.attributes;
+
+    return {
+      id: attr.id,
+      name: attr.name,
+      display_name: attr.display_name,
+      status: attr.status,
+      phone: attr.phone,
+      phone2: attr.phone2,
+      phone3: attr.phone3,
+      email: attr.email,
+      avatar: attr.avatar,
+      address: attr.address,
+      created_at: toDateFormat(attr.created_at),
+      updated_at: toDateFormat(attr.updated_at),
+    };
+  });
 };

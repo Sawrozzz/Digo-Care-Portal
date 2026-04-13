@@ -16,7 +16,6 @@ export default function LoginPage() {
   const handleLoginIn = async (e: any) => {
     e.preventDefault();
     try {
-      console.log("Wokring")
       await login(email, password);
       alert("Login successfull");
       navigate("/dashboard");

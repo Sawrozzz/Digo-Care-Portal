@@ -2,14 +2,8 @@
 import { create } from "zustand";
 import apiClient from "../api/axios";
 
-type Account = {
-  id: number;
-  email: string;
-  profile_type?: string;
-  profile_id?: number;
-  role: string;
-  company_id: number | null;
-};
+import { decodeTokenFromHeader } from "../utils";
+import { type Account } from "../utils";
 
 type AuthState = {
   account: Account | null;
@@ -19,6 +13,7 @@ type AuthState = {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  fetchCurrentUser: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -35,8 +30,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         account: { email, password },
       });
 
-      const authHeader = response.headers["authorization"];
-      const token = authHeader?.split(" ")[1];
+      const header = response.headers["authorization"];
+
+      const token = decodeTokenFromHeader(header);
 
       if (token) {
         localStorage.setItem("token", token);
@@ -61,6 +57,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     try {
       await apiClient.delete("/logout");
+      localStorage.removeItem("token")
     } catch (error: any) {
       console.log(error);
     } finally {
@@ -70,7 +67,31 @@ export const useAuthStore = create<AuthState>((set) => ({
         token: null,
         isAuthenticated: false,
         loading: false,
+        error:null
       });
+    }
+  },
+  fetchCurrentUser: async () => {
+    try {
+      const response = await apiClient.get("admins/current_user");
+
+      const account = response?.data.data || response.data;
+      set({
+        account,
+        isAuthenticated: true,
+      });
+    } catch (err: any) {
+      localStorage.removeItem("token");
+      const message =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        "Login failed";
+      set({
+        error: message,
+        loading: false,
+      });
+      throw new Error(message);
     }
   },
 }));
