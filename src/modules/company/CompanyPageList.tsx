@@ -1,19 +1,18 @@
 import { useEffect } from "react";
 import { SiteHeader } from "../../components/ui/site-header";
-import { companyStore } from "../../zustand/companyStore";
-import { parseCompanyResponse } from "../../utils";
+import {  useCompanyStore } from "../../zustand/companyStore";
 import CompanyTable from "./CompanyTable";
 import { Loader } from "../../components/custom/Loader";
 
 
 export default function CompanyPageList() {
-  const { getAllCompanies, companies, loading } = companyStore();
+  const { getAllCompanies, companies, loading } = useCompanyStore();
 
   useEffect(() => {
     getAllCompanies();
   }, [getAllCompanies]);
 
-  const formattedData = parseCompanyResponse(companies || {});
+  const formattedData = companies ||[];
 
   if (loading) {
     return (

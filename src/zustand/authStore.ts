@@ -76,6 +76,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       const response = await apiClient.get("admins/current_user");
 
       const account = response?.data.data || response.data;
+      // console.log("account", account);
+      
       set({
         account,
         isAuthenticated: true,

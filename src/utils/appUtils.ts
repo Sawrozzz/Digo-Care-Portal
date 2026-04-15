@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from "dayjs";
+import type { Company } from "./utilTypes";
 
 export const toFormData = (data: Record<string, any>) => {
   const formData = new FormData();
@@ -7,18 +8,13 @@ export const toFormData = (data: Record<string, any>) => {
   Object.entries(data).forEach(([key, value]) => {
     if (value === null || value === undefined) return;
 
-    // Handle arrays
     if (Array.isArray(value)) {
       value.forEach((item, index) => {
         formData.append(`${key}[${index}]`, item);
       });
-    }
-    // Handle nested objects (basic)
-    else if (typeof value === "object" && !(value instanceof File)) {
+    } else if (typeof value === "object" && !(value instanceof File)) {
       formData.append(key, JSON.stringify(value));
-    }
-    // File or primitive
-    else {
+    } else {
       formData.append(key, value);
     }
   });
@@ -37,13 +33,13 @@ export const toDateFormat = (dateStr: string) => {
   return dayjs(dateStr, "MM DD YYYY");
 };
 
-export const parseCompanyResponse = (apiResponse: any) => {
-  if (!apiResponse || !Array.isArray(apiResponse.data)) {
-    return [];
-  }
-  return apiResponse.data.map((item: any) => {
-    const attr = item.attributes;
+export const parseCompanyResponse = (response: any): Company[] => {
+  const data = response.data;
 
+  if (!data || !Array.isArray(data)) return [];
+
+  return data.map((item: any) => {
+    const attr = item.attributes;
     return {
       id: attr.id,
       name: attr.name,
@@ -55,8 +51,56 @@ export const parseCompanyResponse = (apiResponse: any) => {
       email: attr.email,
       avatar: attr.avatar,
       address: attr.address,
-      created_at: toDateFormat(attr.created_at),
-      updated_at: toDateFormat(attr.updated_at),
+      created_at: attr.created_at,
+      updated_at: attr.updated_at,
     };
   });
+};
+
+export const companyResponseForTable = (response: any): Company[] => {
+  const data = response;
+
+  if (!data || !Array.isArray(data)) return [];
+
+  return data.map((item: any) => {
+    const attr = item.attributes;
+
+    return {
+      id: attr?.id,
+      name: attr?.name,
+      display_name: attr?.display_name,
+      status: attr?.status,
+      phone: attr?.phone,
+      phone2: attr?.phone2,
+      phone3: attr?.phone3,
+      email: attr?.email,
+      avatar: attr?.avatar,
+      address: attr?.address,
+      created_at: attr?.created_at,
+      updated_at: attr?.updated_at,
+    };
+  });
+};
+
+export const parseSingleCompanyData = (response: any): Company | null => {
+  const data = response?.data;
+
+  if (!data) return null;
+  const attr = data.attributes;
+  if (!attr) return null;
+
+  return {
+    id: attr.id,
+    name: attr.name,
+    display_name: attr.display_name,
+    status: attr.status,
+    phone: attr.phone,
+    phone2: attr.phone2,
+    phone3: attr.phone3,
+    email: attr.email,
+    avatar: attr.avatar,
+    address: attr.address,
+    created_at: attr.created_at,
+    updated_at: attr.updated_at,
+  };
 };

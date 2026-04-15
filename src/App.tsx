@@ -10,6 +10,7 @@ import DashboardWrapper from "./routes/DashboardWrapper";
 import CompanyPageList from "./modules/company/CompanyPageList";
 import PageNotFound from "./pages/PageNotFound";
 import { useAuthStore } from "./zustand/authStore";
+import { useCompanyStore } from "./zustand/companyStore";
 
 const router = createBrowserRouter([
   {
@@ -53,13 +54,23 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  const { token, fetchCurrentUser } = useAuthStore();
+  const { token, fetchCurrentUser, account } = useAuthStore();
+  const { initializeCompanies } = useCompanyStore();
+
+  // console.log("Account", account);
+  
 
   useEffect(() => {
     if (token) {
       fetchCurrentUser();
     }
-  }, [token]);
+  }, [token, fetchCurrentUser]);
+
+  useEffect(() => {
+    if (account) {
+      initializeCompanies(account.role, account.id);
+    }
+  }, [account, initializeCompanies]);
 
   return <RouterProvider router={router} />;
 }
