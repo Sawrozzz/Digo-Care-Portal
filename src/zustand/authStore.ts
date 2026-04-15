@@ -59,7 +59,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       await apiClient.delete("/logout");
       localStorage.removeItem("token")
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
     } finally {
       localStorage.removeItem("token");
       set({
