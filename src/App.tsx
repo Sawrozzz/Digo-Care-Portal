@@ -57,9 +57,6 @@ export default function App() {
   const { token, fetchCurrentUser, account } = useAuthStore();
   const { initializeCompanies } = useCompanyStore();
 
-  // console.log("Account", account);
-  
-
   useEffect(() => {
     if (token) {
       fetchCurrentUser();

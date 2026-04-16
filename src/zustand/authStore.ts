@@ -57,7 +57,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     try {
       await apiClient.delete("/logout");
-      localStorage.removeItem("token")
+      localStorage.removeItem("token");
     } catch (error: any) {
       console.error(error);
     } finally {
@@ -67,7 +67,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         token: null,
         isAuthenticated: false,
         loading: false,
-        error:null
+        error: null,
       });
     }
   },
@@ -76,8 +76,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const response = await apiClient.get("admins/current_user");
 
       const account = response?.data.data || response.data;
-      // console.log("account", account);
-      
+
       set({
         account,
         isAuthenticated: true,
