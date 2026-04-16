@@ -1,4 +1,9 @@
-import { IconBrandOffice, IconDashboard, IconUserShield } from "@tabler/icons-react";
+import {
+  IconBrandOffice,
+  IconDashboard,
+  IconUsersGroup,
+} from "@tabler/icons-react";
+import { ShieldCheck, User } from "lucide-react";
 
 export const PERMISSIONS = {
   SUPER_ADMIN: "super_admin",
@@ -21,8 +26,19 @@ export const navItems = [
   {
     title: "Admin",
     url: "/admins",
-    icon: IconUserShield,
+    icon: ShieldCheck,
     roles: ["super_admin"],
   },
+  {
+    title: "Patient",
+    url: "/patients",
+    icon: IconUsersGroup,
+    roles: ["super_admin", "admin"],
+  },
+  {
+    title: "Employee",
+    url: "/employees",
+    icon: User,
+    roles: ["super_admin", "admin"],
+  },
 ];
-

@@ -11,6 +11,8 @@ import CompanyPageList from "./modules/company/CompanyPageList";
 import PageNotFound from "./pages/PageNotFound";
 import { useAuthStore } from "./zustand/authStore";
 import { useCompanyStore } from "./zustand/companyStore";
+import EmployeePage from "./modules/employee/EmployeePageList";
+import PatientPage from "./modules/patient/PatientPageList";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +40,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <DashboardWrapper />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "patients",
+        element: (
+          <ProtectedRoute>
+            <PatientPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "employees",
+        element: (
+          <ProtectedRoute>
+            <EmployeePage />
           </ProtectedRoute>
         ),
       },
