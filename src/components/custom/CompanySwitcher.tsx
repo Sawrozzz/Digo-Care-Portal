@@ -1,12 +1,10 @@
-import { useState } from "react";
-import { ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown, Building2 } from "lucide-react";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import {
@@ -15,23 +13,21 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "../ui/sidebar";
+import { type Company } from "../../utils";
+import { useCompanyStore } from "../../zustand/companyStore";
+import { useAuthStore } from "../../zustand/authStore";
 
-export function CompanySwitcher({
-  companies,
-}: {
-  companies: {
-    name: string;
-    logo: React.ElementType;
-    plan: string;
-  }[];
-}) {
+export function CompanySwitcher() {
   const { isMobile } = useSidebar();
-  const [activeCompany, setActiveCompany] = useState(companies[0]);
+  const { activeCompany, setActiveCompany, companies, loading } =
+    useCompanyStore();
+  const account = useAuthStore((state) => state.account);
 
-  if (!activeCompany) {
-    return null;
-  }
+  const isSuperAdmin = account?.role === "super_admin";
 
+  if (loading)
+    return <div className="p-4 text-xs animate-pulse">Loading...</div>;
+  if (!activeCompany) return null;
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -41,43 +37,99 @@ export function CompanySwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <activeCompany.logo className="size-4" />
-              </div>
+              <CompanyLogo company={activeCompany} size="large" />
+
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
                   {activeCompany.name}
                 </span>
-                <span className="truncate text-xs">{activeCompany.plan}</span>
+                <span className="truncate text-xs capitalize text-muted-foreground">
+                  {activeCompany.status}
+                </span>
               </div>
-              <ChevronsUpDown className="ml-auto" />
+
+              {isSuperAdmin && companies.length > 1 && (
+                <ChevronsUpDown className="ml-auto size-4" />
+              )}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            align="start"
-            side={isMobile ? "bottom" : "right"}
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="text-xs text-muted-foreground">
-              Companies
-            </DropdownMenuLabel>
-            {companies.map((company, index) => (
-              <DropdownMenuItem
-                key={company.name}
-                onClick={() => setActiveCompany(company)}
-                className="gap-2 p-2"
-              >
-                <div className="flex size-6 items-center justify-center rounded-md border">
-                  <company.logo className="size-3.5 shrink-0" />
-                </div>
-                {company.name}
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
+
+          {isSuperAdmin && (
+            <DropdownMenuContent
+              className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+              align="start"
+              side={isMobile ? "bottom" : "right"}
+              sideOffset={4}
+            >
+              <DropdownMenuLabel className="text-xs text-muted-foreground">
+                Available Companies
+              </DropdownMenuLabel>
+
+              {companies.map((company) => {
+                return (
+                  <DropdownMenuItem
+                    key={company.id}
+                    onClick={() => setActiveCompany(company)}
+                    className="gap-2 p-2 cursor-pointer"
+                  >
+                    <CompanyLogo company={company} size="small" />
+
+                    <span className="flex-1 truncate">{company.name}</span>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          )}
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
   );
 }
+
+const CompanyLogo = ({
+  company,
+  size = "large",
+}: {
+  company: Company | null;
+  size?: "small" | "large";
+}) => {
+  const containerClasses =
+    size === "large" ? "size-8 rounded-lg" : "size-6 rounded-md";
+  const iconClasses = size === "large" ? "size-4" : "size-3";
+
+  const BASE_URL = "http://localhost:3000/"; // NOTE : we have to remove it later
+
+  if (!company) {
+    return (
+      <div
+        className={`flex items-center justify-center bg-sidebar-primary ${containerClasses}`}
+      >
+        <Building2
+          className={`${iconClasses} text-sidebar-primary-foreground/70`}
+        />
+      </div>
+    );
+  }
+
+  const avatarUrl = company.avatar?.url;
+
+  return (
+    <div
+      className={`flex aspect-square items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground overflow-hidden border ${containerClasses}`}
+    >
+      {avatarUrl ? (
+        <img
+          src={
+            avatarUrl.startsWith("http") ? avatarUrl : `${BASE_URL}${avatarUrl}`
+          }
+          alt={company.name}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <Building2
+          className={`${iconClasses} text-sidebar-primary-foreground/70`}
+        />
+      )}
+    </div>
+  );
+};

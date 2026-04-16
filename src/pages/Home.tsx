@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { CustomButton } from "../components/custom/Button";
+import { useAuthStore } from "../zustand/authStore";
 
 type LoginProps = {
   isLoggedIn: boolean;
@@ -7,13 +8,15 @@ type LoginProps = {
 
 export default function HomePage({ isLoggedIn }: LoginProps) {
   const navigate = useNavigate();
+  const {account} = useAuthStore();
   const handleOnClick = () => {
-    navigate("login");
+    navigate("/login");
   };
+  console.log(account)
   return (
     <div className="flex justify-center flex-col items-center">
       <div>
-        <h1 className="text-4xl">Home page</h1>
+        <h1 className="text-4xl">ID Admin Dashboard</h1>
       </div>
 
       <div>

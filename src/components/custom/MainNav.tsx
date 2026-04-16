@@ -1,5 +1,3 @@
-import { IconDashboard, IconUserShield } from "@tabler/icons-react";
-import { GalleryVerticalEnd, AudioWaveform, Command } from "lucide-react";
 import {
   SidebarInset,
   SidebarProvider,
@@ -12,48 +10,15 @@ import { CompanySwitcher } from "./CompanySwitcher";
 
 import { Outlet } from "react-router-dom";
 import { NavMain } from "../ui/nav-main";
-import { NavUser } from "../ui/nav-user";
-
-const data = {
-  user: {
-    name: "Admin",
-    email: "admin@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  companies: [
-    {
-      name: "Company 1",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Company 2",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Company 3",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconDashboard,
-    },
-    {
-      title: "Admins",
-      url: "/admins",
-      icon: IconUserShield,
-    },
-  ],
-};
+import UserNav from "./UserNav";
+import { useNavItem } from "../../hooks/use-nav-item";
+import { navItems } from "../../utils";
 
 export default function MainNav({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const filteredNav = useNavItem(navItems);
+
   return (
     <SidebarProvider
       style={
@@ -65,13 +30,13 @@ export default function MainNav({
     >
       <Sidebar collapsible="offcanvas" {...props}>
         <SidebarHeader>
-          <CompanySwitcher companies={data.companies} />
+          <CompanySwitcher />
         </SidebarHeader>
         <SidebarContent>
-          <NavMain items={data.navMain} />
+          <NavMain items={filteredNav} />
         </SidebarContent>
         <SidebarFooter>
-          <NavUser user={data.user} />
+          <UserNav />
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
