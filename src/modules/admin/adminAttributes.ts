@@ -1,38 +1,70 @@
 import z from "zod";
+import type { FormField } from "../../components/custom/GenericForm";
 
 export type Admin = {
   id: number;
-  name: string;
-  role?: string;
-  status?: string;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  name?: string;
+  role: string;
+  status: string;
+  has_account?: boolean;
 };
 
 export const adminSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  role: z.string().default("admin"),
-  status: z.string().default("active"),
+  first_name: z.string().min(1, "First name is required"),
+  last_name: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email"),
+  role: z.string(),
+  status: z.string(),
 });
 
-export const adminFields = [
+export const adminFormFields: FormField[] = [
   {
-    name: "name",
-    input_type: "text",
-    label: "Name",
-    placeholder: "Enter Name",
+    name: "first_name",
+    label: "First Name",
+    type: "text",
+    placeholder: "Enter first name",
     required: true,
+    gridCol: 2,
+  },
+  {
+    name: "last_name",
+    label: "Last Name",
+    type: "text",
+    placeholder: "Enter last name",
+    required: true,
+    gridCol: 2,
+  },
+  {
+    name: "email",
+    label: "Email Address",
+    type: "email",
+    placeholder: "Enter email",
+    required: true,
+    gridCol: 1,
   },
   {
     name: "role",
     label: "Role",
-    input_type: "select",
-    placeholder: "Select One",
-    options: ["admin", "superadmin"],
+    type: "select",
+    required: true,
+    gridCol: 2,
+    options: [
+      { label: "Admin", value: "admin" },
+      { label: "Super Admin", value: "super_admin" },
+    ],
   },
   {
     name: "status",
     label: "Status",
-    input_type: "text",
-    disabled: true,
+    type: "select",
+    required: true,
+    gridCol: 2,
+    options: [
+      { label: "Active", value: "active" },
+      { label: "Inactive", value: "in_active" },
+    ],
   },
 ];

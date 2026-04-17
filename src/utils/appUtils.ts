@@ -51,8 +51,8 @@ export const parseCompanyResponse = (response: any): Company[] => {
       email: attr.email,
       avatar: attr.avatar,
       address: attr.address,
-      created_at: attr.created_at,
-      updated_at: attr.updated_at,
+      created_at: toDateFormat(attr.created_at).toDate(),
+      updated_at: toDateFormat(attr.updated_at).toDate(),
     };
   });
 };
@@ -100,6 +100,117 @@ export const parseSingleCompanyData = (response: any): Company | null => {
     email: attr.email,
     avatar: attr.avatar,
     address: attr.address,
+    created_at: toDateFormat(attr?.created_at).toDate(),
+    updated_at: toDateFormat(attr.updated_at).toDate(),
+  };
+};
+
+export const parseAdminResponse = (response: any): any[] => {
+  const data = response.data;
+
+  if (!data || !Array.isArray(data)) return [];
+
+  return data.map((item: any) => {
+    const attr = item.attributes;
+    return {
+      id: attr.id,
+      name:
+        attr.name || `${attr.first_name || ""} ${attr.last_name || ""}`.trim(),
+      first_name: attr.first_name,
+      last_name: attr.last_name,
+      role: attr.role,
+      status: attr.status,
+      email: attr.email,
+      created_at: toDateFormat(attr.created_at),
+      updated_at: toDateFormat(attr.updated_at),
+    };
+  });
+};
+
+export const adminResponseForTable = (response: any): any[] => {
+  const data = response;
+
+  if (!data || !Array.isArray(data)) return [];
+
+  return data.map((item: any) => {
+    const attr = item.attributes;
+    return {
+      id: attr?.id,
+      name: attr?.name || `${attr?.first_name || ''} ${attr?.last_name || ''}`.trim(),
+      first_name: attr?.first_name,
+      last_name: attr?.last_name,
+      role: attr?.role,
+      status: attr?.status,
+      email: attr?.email,
+      has_account: attr?.has_account,
+      created_at: toDateFormat(attr?.created_at),
+      updated_at: toDateFormat(attr?.updated_at),
+    };
+  });
+};
+
+export const parseSingleAdminData = (response: any): any | null => {
+  const data = response?.data;
+
+  if (!data) return null;
+  const attr = data.attributes;
+  if (!attr) return null;
+
+  return {
+    id: attr.id,
+    name:
+      attr.name || `${attr.first_name || ""} ${attr.last_name || ""}`.trim(),
+    first_name: attr.first_name,
+    last_name: attr.last_name,
+    role: attr.role,
+    status: attr.status,
+    email: attr.email,
+    has_account: attr?.has_account,
+    created_at: toDateFormat(attr.created_at),
+    updated_at: toDateFormat(attr.updated_at),
+  };
+};
+
+export const parseAdminResponseFixed = (response: any): any[] => {
+  const data = response.data;
+
+  if (!data || !Array.isArray(data)) return [];
+
+  return data.map((item: any) => {
+    const attr = item.attributes;
+    return {
+      id: attr.id,
+      name:
+        attr.name || `${attr.first_name || ""} ${attr.last_name || ""}`.trim(),
+      first_name: attr.first_name,
+      last_name: attr.last_name,
+      role: attr.role,
+      status: attr.status,
+      email: attr.email,
+      has_account: attr?.has_account,
+      created_at: attr.created_at,
+      updated_at: attr.updated_at,
+    };
+  });
+};
+
+export const parseSingleAdminDataFixed = (response: any): any | null => {
+  const data = response?.data;
+
+  if (!data) return null;
+  const attr = data.attributes;
+  if (!attr) return null;
+
+  return {
+    id: attr.id,
+    name:
+      attr.name || `${attr.first_name || ""} ${attr.last_name || ""}`.trim(),
+    first_name: attr.first_name,
+    last_name: attr.last_name,
+    role: attr.role,
+    status: attr.status,
+    email: attr.email,
+    has_account: attr?.has_account,
     created_at: attr.created_at,
     updated_at: attr.updated_at,
   };

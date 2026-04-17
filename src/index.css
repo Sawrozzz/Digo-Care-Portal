@@ -48,8 +48,9 @@
     --sidebar-active: #e0e7ff;
   
     /* Primary */
-    --color-primary: #4f46e5;
-    --color-primary-soft: #c7d2fe;
+    --color-primary: #34db6c;
+    --color-primary-soft: #73e5a4;
+    --color-primary-dark: #40835d;
   
     /* Text */
     --text-primary: #111827;
