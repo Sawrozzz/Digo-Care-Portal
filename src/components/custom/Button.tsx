@@ -16,7 +16,7 @@ export const CustomButton = ({
 }: CustomButtonWrapperProps) => {
   const variantStyles =
     variantType === "primary"
-      ? "bg-green-600 hover:bg-green-700 text-white border-none shadow-md"
+      ? "bg-(--color-primary) hover:opacity-90 text-white border-none shadow-md"
       : "bg-orange-500 hover:bg-orange-600 text-white border-none shadow-md";
 
   const Icon = iconName ? (Icons[iconName] as React.ElementType) : null;

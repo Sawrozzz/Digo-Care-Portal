@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 
 import AdminPageList from "./modules/admin/AdminPageList";
 import LoginPage from "./pages/Login";
@@ -19,6 +19,10 @@ const router = createBrowserRouter([
     path: "/",
     element: <MainNav />,
     children: [
+      {
+        index: true,
+        element: <Navigate to="/dashboard" replace/>
+      },
       {
         path: "admins",
         element: (
@@ -66,7 +70,7 @@ const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    path: "/page-not-found",
+    path: "*",
     element: <PageNotFound />,
   },
 ]);
