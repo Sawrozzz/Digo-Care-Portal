@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { HeartIcon } from "lucide-react";
 
 import { useAuthStore } from "../zustand/authStore";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const login = useAuthStore((state) => state.login);
@@ -17,10 +18,10 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       await login(email, password);
-      alert("Login successfull");
+      toast.success("Login successfull");
       navigate("/dashboard");
     } catch (err: any) {
-      console.log(err);
+      toast.error(err);
     }
     navigate("/dashboard");
   };

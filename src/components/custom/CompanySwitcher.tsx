@@ -17,6 +17,8 @@ import { type Company } from "../../utils";
 import { useCompanyStore } from "../../zustand/companyStore";
 import { useAuthStore } from "../../zustand/authStore";
 
+import { BASE_URL } from "../../utils";
+
 export function CompanySwitcher() {
   const { isMobile } = useSidebar();
   const { activeCompany, setActiveCompany, companies, loading } =
@@ -96,8 +98,6 @@ const CompanyLogo = ({
   const containerClasses =
     size === "large" ? "size-8 rounded-lg" : "size-6 rounded-md";
   const iconClasses = size === "large" ? "size-4" : "size-3";
-
-  const BASE_URL = "http://localhost:3000/"; // NOTE : we have to remove it later
 
   if (!company) {
     return (

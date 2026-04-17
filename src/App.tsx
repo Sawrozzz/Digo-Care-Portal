@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 
 import AdminPageList from "./modules/admin/AdminPageList";
 import LoginPage from "./pages/Login";
@@ -11,12 +11,18 @@ import CompanyPageList from "./modules/company/CompanyPageList";
 import PageNotFound from "./pages/PageNotFound";
 import { useAuthStore } from "./zustand/authStore";
 import { useCompanyStore } from "./zustand/companyStore";
+import EmployeePage from "./modules/employee/EmployeePageList";
+import PatientPage from "./modules/patient/PatientPageList";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <MainNav />,
     children: [
+      {
+        index: true,
+        element: <Navigate to="/dashboard" replace/>
+      },
       {
         path: "admins",
         element: (
@@ -41,6 +47,22 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "patients",
+        element: (
+          <ProtectedRoute>
+            <PatientPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "employees",
+        element: (
+          <ProtectedRoute>
+            <EmployeePage />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
   {
@@ -48,7 +70,7 @@ const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    path: "/page-not-found",
+    path: "*",
     element: <PageNotFound />,
   },
 ]);
@@ -56,9 +78,6 @@ const router = createBrowserRouter([
 export default function App() {
   const { token, fetchCurrentUser, account } = useAuthStore();
   const { initializeCompanies } = useCompanyStore();
-
-  // console.log("Account", account);
-  
 
   useEffect(() => {
     if (token) {

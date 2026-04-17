@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { NavUser } from "../ui/nav-user";
 
 import { useAuthStore } from "../../zustand/authStore";
+import { toast } from "react-toastify";
 
 export default function UserNav() {
   const { loading, logout, account } = useAuthStore();
@@ -15,8 +16,9 @@ export default function UserNav() {
     try {
       logout();
       navigate("/login");
+      toast.success("Logout successfull")
     } catch (error: any) {
-      console.error(error);
+      toast.error(error);
     }
   };
 

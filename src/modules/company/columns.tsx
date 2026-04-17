@@ -10,6 +10,8 @@ import {
 
 import { Pencil, Trash2Icon } from "lucide-react";
 
+import { BASE_URL } from "../../utils";
+
 export const companyColumns: ColumnDef<Company>[] = [
   {
     accessorKey: "id",
@@ -22,11 +24,33 @@ export const companyColumns: ColumnDef<Company>[] = [
     cell: ({ row }) => {
       const name = row.original.name;
       const email = row.original.email;
+      const avatar = row.original.avatar;
+      const avatarUrl = row.original.avatar?.url;
 
       return (
-        <div className="flex flex-col text-sm leading-tight">
-          <span className="font-medium">{name}</span>
-          <span className="text-muted-foreground">{email}</span>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center border-white shadow-sm">
+            {avatar?.url ? (
+              <img
+                src={
+                  avatarUrl?.startsWith("http")
+                    ? avatarUrl
+                    : `${BASE_URL}${avatarUrl}`
+                }
+                alt={name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-xs font-medium text-gray-600">
+                {name?.charAt(0)?.toUpperCase()}
+              </span>
+            )}
+          </div>
+
+          <div>
+            <p className="font-medium">{name}</p>
+            <p className="text-xs text-gray-500">{email}</p>
+          </div>
         </div>
       );
     },
@@ -89,7 +113,10 @@ export const companyColumns: ColumnDef<Company>[] = [
     cell: () => (
       <div className="flex gap-2">
         <button onClick={() => alert("Edit")} title="Edit">
-          <Pencil size={16} color="green" className=" cursor-pointer" />
+          <Pencil
+            size={16}
+            className=" cursor-pointer text-(--color-primary)"
+          />
         </button>
         <button onClick={() => alert("Delete")} title="Delete">
           <Trash2Icon size={16} color="red" className="cursor-pointer" />

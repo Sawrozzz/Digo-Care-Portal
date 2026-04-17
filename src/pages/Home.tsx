@@ -8,15 +8,15 @@ type LoginProps = {
 
 export default function HomePage({ isLoggedIn }: LoginProps) {
   const navigate = useNavigate();
-  const {account} = useAuthStore();
+  const { account } = useAuthStore();
   const handleOnClick = () => {
     navigate("/login");
   };
-  console.log(account)
+
   return (
     <div className="flex justify-center flex-col items-center">
       <div>
-        <h1 className="text-4xl">ID Admin Dashboard</h1>
+        <h1 className="text-4xl">{account?.company_id} ID Admin Dashboard</h1>
       </div>
 
       <div>

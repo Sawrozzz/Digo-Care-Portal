@@ -16,3 +16,5 @@ export const updateToApi = (url: string, data: any) => {
 export const deleteFromApi = (url: string) => {
   return request("DELETE", url);
 };
+
+export const BASE_URL = import.meta.env.VITE_BASE_URL;
