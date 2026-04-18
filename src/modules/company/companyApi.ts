@@ -7,3 +7,9 @@ export const getSingleCompany = (id: number) => {
 export const getALLCompany = () => {
   getFromApi("/companies");
 };
+
+import { deleteFromApi } from "../../utils";
+
+export const deleteCompany = (id: number) => {
+  return deleteFromApi(`/companies/${id}`);
+};

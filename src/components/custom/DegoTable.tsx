@@ -76,11 +76,11 @@ export function DegoTable<TData, TValue>({
   });
 
   return (
-    <div className="w-full space-y-2 pt-2">
+    <div className="w-full space-y-4 pt-4">
       {/* Top bar */}
-      <div className="flex items-center justify-between">
-        <div className="relative w-72">
-          <IconSearch className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-md">
+          <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder={placeholder}
             value={
@@ -90,11 +90,14 @@ export function DegoTable<TData, TValue>({
               table.getColumn(searchKey)?.setFilterValue(event.target.value)
             }
             className="
-              pl-9 h-9
+              pl-10 h-10
               bg-white
-              border border-(--border-color)
-              focus:ring-2 focus:ring-(--color-primary-soft)
-              focus:border-(--color-primary)
+              border border-gray-200
+              rounded-lg
+              focus:ring-2 focus:ring-blue-400/50
+              focus:border-blue-400
+              transition-all
+              text-sm
             "
           />
         </div>
@@ -103,9 +106,11 @@ export function DegoTable<TData, TValue>({
           onClick={onAddData}
           size="sm"
           className="
-            bg-(--color-primary)
-            hover:opacity-90
+            bg-(--color-primary) hover:bg-(--color-primary-dark)
             text-white
+            rounded-lg
+            transition-all
+            shadow-sm hover:shadow-md
           "
         >
           <IconPlus className="mr-2 h-4 w-4" />
@@ -114,16 +119,16 @@ export function DegoTable<TData, TValue>({
       </div>
 
       {/* Table container */}
-      <div className="rounded-xl border border-(--border-color) bg-white overflow-hidden">
+      <div className="rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow">
         <Table>
           {/* Header */}
-          <TableHeader className="bg-[#f9fafb]">
+          <TableHeader className="bg-linear-to-r from-gray-50 to-gray-100 border-b border-gray-200">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b">
+              <TableRow key={headerGroup.id} className="hover:bg-gray-100 transition-colors">
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                    className="px-6 py-4 text-xs font-semibold text-gray-700 uppercase tracking-wider"
                   >
                     {header.isPlaceholder
                       ? null
@@ -140,20 +145,18 @@ export function DegoTable<TData, TValue>({
           {/* Body */}
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row, idx) => (
                 <TableRow
                   key={row.id}
-                  className="
-                    bg-white
-        border border-(--border-color)
-        rounded-xl
-        p-4
-        hover:shadow-sm
-        transition
-                  "
+                  className={`
+                    border-b border-gray-100
+                    transition-all duration-200
+                    hover:bg-blue-50/40
+                    ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}
+                  `}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-3">
+                    <TableCell key={cell.id} className="px-6 py-4 text-sm text-gray-700">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),
@@ -166,7 +169,7 @@ export function DegoTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center text-gray-500"
+                  className="h-24 text-center text-gray-400 text-sm"
                 >
                   No results found
                 </TableCell>
@@ -177,17 +180,17 @@ export function DegoTable<TData, TValue>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pt-2">
         {/* Page size */}
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          Rows per page
+        <div className="flex items-center gap-3 text-sm text-gray-700">
+          <span className="font-medium">Rows per page</span>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
               table.setPageSize(Number(value));
             }}
           >
-            <SelectTrigger className="h-8 w-20 border border-(--border-color)">
+            <SelectTrigger className="h-9 w-20 border border-gray-200 rounded-lg text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent side="top">
@@ -201,30 +204,32 @@ export function DegoTable<TData, TValue>({
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-600">
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-600 font-medium">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}
           </span>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-(--border-color)"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-gray-200 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
 
-          <Button
-            size="sm"
-            className="bg-(--color-primary) text-white hover:opacity-90"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+            <Button
+              size="sm"
+              className="bg-(--color-primary) hover:to-blue-700 text-white rounded-lg transition-all"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </div>

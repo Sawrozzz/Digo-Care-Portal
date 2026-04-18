@@ -11,6 +11,7 @@ import {
 import { Pencil, Trash2Icon } from "lucide-react";
 
 import { BASE_URL } from "../../utils";
+import { deleteCompany } from "./companyApi";
 
 export const companyColumns: ColumnDef<Company>[] = [
   {
@@ -110,7 +111,7 @@ export const companyColumns: ColumnDef<Company>[] = [
   {
     accessorKey: "actions",
     header: "Actions",
-    cell: () => (
+    cell: ({ row }) => (
       <div className="flex gap-2">
         <button onClick={() => alert("Edit")} title="Edit">
           <Pencil
@@ -118,7 +119,20 @@ export const companyColumns: ColumnDef<Company>[] = [
             className=" cursor-pointer text-(--color-primary)"
           />
         </button>
-        <button onClick={() => alert("Delete")} title="Delete">
+        <button
+          onClick={async () => {
+            if (window.confirm(`Delete company "${row.original.name}"?`)) {
+              try {
+                await deleteCompany(row.original.id);
+                alert("Company deleted successfully");
+                window.location.reload();
+              } catch (error: any) {
+                alert(`Error: ${error.message || "Failed to delete company"}`);
+              }
+            }
+          }}
+          title="Delete"
+        >
           <Trash2Icon size={16} color="red" className="cursor-pointer" />
         </button>
       </div>

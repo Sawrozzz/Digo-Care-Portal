@@ -34,6 +34,6 @@ export type Company = {
   status: string;
   avatar?: Avatar;
   address?: Address;
-  created_at?: string;
-  updated_at?: string;
+  created_at?: Date;
+  updated_at?: Date;
 };
