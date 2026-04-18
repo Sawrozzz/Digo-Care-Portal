@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { toast } from "react-toastify";
 import {
@@ -31,25 +32,11 @@ export function DeleteConfirmationDialog({
     setLoading(true);
     try {
       await onConfirm();
-      toast.success(`✓ ${itemName} deleted successfully!`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.success(`${itemName} deleted successfully!`);
       onOpenChange(false);
       await reloadTable();
     } catch (error: any) {
-      toast.error(`✗ Error: ${error.message || "Failed to delete item"}`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error(`✗ Error: ${error.message || "Failed to delete item"}`);
     } finally {
       setLoading(false);
     }
@@ -57,7 +44,7 @@ export function DeleteConfirmationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-gradient-to-br from-white to-gray-50 border-0 rounded-2xl shadow-2xl">
+      <DialogContent className="sm:max-w-md bg-linear-to-br from-white to-gray-50 border-0 rounded-2xl shadow-2xl">
         <DialogHeader className="space-y-4">
           <div className="flex items-center justify-center">
             <div className="p-3 bg-red-100 rounded-full">
@@ -88,7 +75,7 @@ export function DeleteConfirmationDialog({
             type="button"
             disabled={loading}
             onClick={handleDelete}
-            className="flex-1 h-10 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-medium transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+            className="flex-1 h-10 bg-linear-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-medium transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? (
               <span className="flex items-center gap-2">

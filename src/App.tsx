@@ -1,6 +1,10 @@
 import { useEffect } from "react";
 
-import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 
 import AdminPageList from "./modules/admin/AdminPageList";
 import LoginPage from "./pages/Login";
@@ -9,6 +13,7 @@ import ProtectedRoute from "./routes/ProtectedRoutes";
 import DashboardWrapper from "./routes/DashboardWrapper";
 import CompanyPageList from "./modules/company/CompanyPageList";
 import PageNotFound from "./pages/PageNotFound";
+import CompanyProfilePage from "./modules/company/CompanyProfilePage";
 import { useAuthStore } from "./zustand/authStore";
 import { useCompanyStore } from "./zustand/companyStore";
 import EmployeePage from "./modules/employee/EmployeePageList";
@@ -21,7 +26,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/dashboard" replace/>
+        element: <Navigate to="/dashboard" replace />,
       },
       {
         path: "admins",
@@ -36,6 +41,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiredRole="super_admin">
             <CompanyPageList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "companies/:id",
+        element: (
+          <ProtectedRoute>
+            <CompanyProfilePage />
           </ProtectedRoute>
         ),
       },

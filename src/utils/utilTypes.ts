@@ -2,6 +2,7 @@ export type Address = {
   id: number;
   country: string;
   province?: string;
+  district?: string;
   municipality?: string;
   ward_no?: number;
   google_map?: string;
@@ -32,6 +33,7 @@ export type Company = {
   phone3?: string;
   email: string;
   status: string;
+  has_account?: boolean;
   avatar?: Avatar;
   address?: Address;
   created_at?: Date;

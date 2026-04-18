@@ -11,7 +11,7 @@ import {
 
 import { Pencil, Trash2Icon } from "lucide-react";
 import { deleteAdmin } from "./adminApi";
-import { DeleteConfirmationDialog } from "../../components/custom/DeleteConfirmationDialog";
+import { DeleteConfirmationDialog } from "../../components/custom";
 import { CustomButton } from "../../components/custom/Button";
 
 interface AdminColumnsProps {

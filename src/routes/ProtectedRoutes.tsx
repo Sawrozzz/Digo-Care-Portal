@@ -17,7 +17,9 @@ export default function ProtectedRoute({ children, requiredRole }: Props) {
 
   if(!account){
     return(
-      <Loader size={72} />
+      <div className="flex items-center justify-center h-full">
+        <Loader size={92} />
+      </div>
     )
   }
 
