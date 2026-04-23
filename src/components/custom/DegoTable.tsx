@@ -110,7 +110,7 @@ export function DegoTable<TData, TValue>({
             text-white
             rounded-lg
             transition-all
-            shadow-sm hover:shadow-md
+            cursor-pointer
           "
         >
           <IconPlus className="mr-2 h-4 w-4" />

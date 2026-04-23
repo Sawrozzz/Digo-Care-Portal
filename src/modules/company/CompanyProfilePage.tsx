@@ -6,9 +6,8 @@ import {
   Phone,
   MapPin,
   Building2,
-  CheckCircle,
   AlertCircle,
-  Briefcase,
+  Contact,
 } from "lucide-react";
 import { getSingleCompany } from "./companyApi";
 import { Loader } from "../../components/custom/Loader";
@@ -125,201 +124,166 @@ export default function CompanyProfilePage() {
       {/* Main Content */}
       <div className="px-4 lg:px-6 py-8">
         {/* Top Section - Avatar & Basic Info with Status */}
-        <div className="bg-white border border-gray-100 rounded-lg overflow-hidden mb-8 shadow-sm">
-          {/* Gradient Header */}
-          <div className="h-32 bg-linear-to-r from-blue-600 via-blue-500 to-cyan-500"></div>
+        <div className="bg-white border border-gray-100 rounded-lg p-6 mb-8">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+            {/* Avatar */}
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-gray-100 border flex items-center justify-center shrink-0">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={company.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Building2 size={40} className="text-gray-300" />
+              )}
+            </div>
 
-          {/* Content Container */}
-          <div className="px-6 pb-6">
-            {/* Header with Avatar and Title */}
-            <div className="flex flex-col sm:flex-row gap-6 -mt-16 mb-6">
-              {/* Avatar */}
-              <div className="shrink-0">
-                <div className="w-32 h-32 rounded-full overflow-hidden bg-white border-4 border-white shadow-md flex items-center justify-center">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={company.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Building2 size={64} className="text-gray-300" />
-                  )}
-                </div>
-              </div>
-
-              {/* Company Info & Actions */}
-              <div className="flex-1 flex flex-col justify-center">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                    {company.name}
-                  </h1>
-                  <p className="text-sm text-gray-500 mb-4">
-                    {company?.display_name ?? "N/A"}
-                  </p>
-                </div>
+            {/* Company Info */}
+            <div className="text-center sm:text-left flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                {company.name}
+              </h1>
+              <div
+                className={`inline-flex items-center justify-center px-3 py-1 min-w-22.5 rounded-md text-xs font-medium capitalize ${
+                  company?.status?.toLowerCase() === "active"
+                    ? "bg-green-100 text-green-700"
+                    : company?.status?.toLowerCase() === "pending"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : company?.status?.toLowerCase() === "archived"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                {company?.status || "N/A"}
               </div>
             </div>
           </div>
         </div>
 
         {/* Two Column Grid - Contact & Account Info */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Contact Information Card */}
-          <div className="lg:col-span-2 bg-white border border-gray-100 rounded-lg shadow-sm p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
+          {/* Contact Card */}
+          <div className="bg-white border border-gray-100 rounded-lg p-6 h-full">
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100">
-                <Mail size={20} className="text-blue-600" />
-              </div>
+              <Contact size={24} />
               <h2 className="text-lg font-bold text-gray-900">Contact</h2>
             </div>
 
             <div className="space-y-6">
-              {/* Email */}
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  Email
-                </p>
-                <p className="text-base text-gray-900 font-medium">
+                <div className="flex flex-row items-center gap-2">
+                  <Mail className="font-semibold text-gray-500" size={16} />
+                  <p className="text-xs font-semibold text-gray-500 uppercase">
+                    Email
+                  </p>
+                </div>
+                <p className="text-sm text-gray-900 ml-6 mt-2">
                   {company.email}
                 </p>
               </div>
 
-              {/* Phone Numbers */}
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                  Phone
-                </p>
-                <div className="space-y-2.5">
-                  {company.phone && (
-                    <div className="flex items-center gap-3">
-                      <Phone size={16} className="text-greenshrink-0" />
-                      <span className="text-sm text-gray-900">
-                        {company.phone}
-                      </span>
-                    </div>
-                  )}
-                  {company.phone2 && (
-                    <div className="flex items-center gap-3">
-                      <Phone size={16} className="text-blueshrink-0" />
-                      <span className="text-sm text-gray-900">
-                        {company.phone2}
-                      </span>
-                    </div>
-                  )}
-                  {company.phone3 && (
-                    <div className="flex items-center gap-3">
-                      <Phone size={16} className="text-purple-600 shrink-0" />
-                      <span className="text-sm text-gray-900">
-                        {company.phone3}
-                      </span>
-                    </div>
-                  )}
+                <div className="flex flex-row items-center gap-2">
+                  <Phone className="font-semibold text-gray-500" size={16} />
+                  <p className="text-xs font-semibold text-gray-500 uppercase">
+                    Phone
+                  </p>
+                </div>
+                <div className="space-y-1 mt-2 ml-6">
+                  {[company.phone, company.phone2, company.phone3]
+                    .filter(Boolean)
+                    .map((phone, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <span className="text-sm text-gray-900">{phone}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Account Status Card */}
-          <div className="bg-white border border-gray-100 rounded-lg shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div
-                className={`flex items-center justify-center w-10 h-10 rounded-lg ${
-                  company.has_account ? "bg-emerald-100" : "bg-yellow-100"
-                }`}
-              >
-                <Briefcase
-                  size={20}
-                  className={
-                    company.has_account ? "text-emerald-600" : "text-yellow-600"
-                  }
-                />
+          {/* Location Card */}
+          {company.address && (
+            <div className="bg-white border border-gray-100 rounded-lg p-6 h-full">
+              <div className="flex items-center gap-3 mb-6">
+                <MapPin size={24} />
+                <h2 className="text-lg font-bold text-gray-900">Location</h2>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {company.address.country && (
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase mb-1">
+                      Country
+                    </p>
+                    <p className="text-sm font-medium">
+                      {company.address.country}
+                    </p>
+                  </div>
+                )}
+                {company.address.province && (
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase mb-1">
+                      Province
+                    </p>
+                    <p className="text-sm font-medium">
+                      {company.address.province}
+                    </p>
+                  </div>
+                )}
+                {company.address.district && (
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase mb-1">
+                      District
+                    </p>
+                    <p className="text-sm font-medium">
+                      {company.address.district}
+                    </p>
+                  </div>
+                )}
+                {company.address.municipality && (
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase mb-1">
+                      Municipality
+                    </p>
+                    <p className="text-sm font-medium">
+                      {company.address.municipality}
+                    </p>
+                  </div>
+                )}
+                {company.address.ward_no && (
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase mb-1">Ward</p>
+                    <p className="text-sm font-medium">
+                      #{company.address.ward_no}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Account Card */}
+          {/* <div className="bg-white border border-gray-100 rounded-lg shadow-sm p-6 h-full">
               <h2 className="text-lg font-bold text-gray-900">Account</h2>
-            </div>
 
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                Status
-              </p>
-              <div
-                className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
-                  company.has_account
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-yellow-50 text-yellow-700"
-                }`}
-              >
-                <CheckCircle size={16} />
-                {company.has_account ? "Active" : "Not Created"}
-              </div>
+            <p className="text-xs font-semibold text-gray-500 uppercase mb-3">
+              Status
+            </p>
+
+            <div
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
+                company.has_account
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-yellow-50 text-yellow-700"
+              }`}
+            >
+              <CheckCircle size={16} />
+              {company.has_account ? "Created" : "Not Created"}
             </div>
-          </div>
+          </div> */}
         </div>
-
-        {/* Address Section */}
-        {company.address && (
-          <div className="bg-white border border-gray-100 rounded-lg shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-100">
-                <MapPin size={20} className="text-purple-600" />
-              </div>
-              <h2 className="text-lg font-bold text-gray-900">Location</h2>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-              {company.address.country && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Country
-                  </p>
-                  <p className="text-sm text-gray-900 font-medium">
-                    {company.address.country}
-                  </p>
-                </div>
-              )}
-              {company.address.province && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Province
-                  </p>
-                  <p className="text-sm text-gray-900 font-medium">
-                    {company.address.province}
-                  </p>
-                </div>
-              )}
-              {company.address.district && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    District
-                  </p>
-                  <p className="text-sm text-gray-900 font-medium">
-                    {company.address.district}
-                  </p>
-                </div>
-              )}
-              {company.address.municipality && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Municipality
-                  </p>
-                  <p className="text-sm text-gray-900 font-medium">
-                    {company.address.municipality}
-                  </p>
-                </div>
-              )}
-              {company.address.ward_no && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Ward
-                  </p>
-                  <p className="text-sm text-gray-900 font-medium">
-                    #{company.address.ward_no}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

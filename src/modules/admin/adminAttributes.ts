@@ -65,6 +65,7 @@ export const adminFormFields: FormField[] = [
     options: [
       { label: "Active", value: "active" },
       { label: "Inactive", value: "in_active" },
+      { label: "Archived", value: "archived" },
     ],
   },
 ];

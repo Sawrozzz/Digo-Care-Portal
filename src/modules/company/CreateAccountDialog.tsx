@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { Eye, EyeOff, Lock, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
+import { ZodError } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,8 @@ import {
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { CustomButton } from "../../components/custom/Button";
+import { createCompanyAdminAccount } from "./companyApi";
+import { createCompanyAccountSchema } from "./companyAttributes";
 
 interface CreateAccountDialogProps {
   open: boolean;
@@ -30,56 +33,47 @@ export function CreateAccountDialog({
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const validatePasswords = (): boolean => {
-    if (!password || !passwordConfirm) {
-      toast.error("Both password fields are required");
+  const validateForm = (): boolean => {
+    setErrors({});
+    
+    try {
+      createCompanyAccountSchema.parse({
+        password,
+        password_confirmation: passwordConfirm,
+      });
+      return true;
+    } catch (error: any) {
+      if (error instanceof ZodError) {
+        const newErrors: Record<string, string> = {};
+        error.issues.forEach((issue: any) => {
+          const path = issue.path.join(".");
+          newErrors[path] = issue.message;
+        });
+        setErrors(newErrors);
+      }
       return false;
     }
-
-    if (password.length < 8) {
-      toast.error("Password must be at least 8 characters");
-      return false;
-    }
-
-    if (password !== passwordConfirm) {
-      toast.error("Passwords do not match");
-      return false;
-    }
-
-    return true;
   };
 
   const handleCreate = async () => {
-    if (!validatePasswords()) return;
+    if (!validateForm()) {
+      toast.error("Please fix the validation errors");
+      return;
+    }
 
     setLoading(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || ""}/admins/create_company_admin/${companyId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            account: {
-              password: password,
-              password_confirmation: passwordConfirm,
-            },
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to create account");
-      }
+      await createCompanyAdminAccount(companyId, {
+        password,
+        password_confirmation: passwordConfirm,
+      });
 
       toast.success("Company account created successfully!");
       setPassword("");
       setPasswordConfirm("");
+      setErrors({});
       onOpenChange(false);
       await onSuccess();
     } catch (error: any) {
@@ -94,10 +88,18 @@ export function CreateAccountDialog({
     setPasswordConfirm("");
     setShowPassword(false);
     setShowConfirmPassword(false);
+    setErrors({});
     onOpenChange(false);
   };
 
   const passwordsMatch = password === passwordConfirm && password.length > 0;
+
+  const isDisabled =
+    loading ||
+    !password ||
+    !passwordConfirm ||
+    !passwordsMatch ||
+    Object.keys(errors).length > 0;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -131,7 +133,12 @@ export function CreateAccountDialog({
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter a secure password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) {
+                    setErrors({ ...errors, password: "" });
+                  }
+                }}
                 disabled={loading}
                 className="pr-12 h-11 text-base"
               />
@@ -144,9 +151,9 @@ export function CreateAccountDialog({
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-              <span>✓</span> Minimum 8 characters required
-            </p>
+            {errors.password && (
+              <p className="text-xs text-red-600 mt-1">{errors.password}</p>
+            )}
           </div>
 
           {/* Confirm Password Field */}
@@ -159,7 +166,12 @@ export function CreateAccountDialog({
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder="Re-enter your password"
                 value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
+                onChange={(e) => {
+                  setPasswordConfirm(e.target.value);
+                  if (errors.password_confirmation) {
+                    setErrors({ ...errors, password_confirmation: "" });
+                  }
+                }}
                 disabled={loading}
                 className="pr-12 h-11 text-base"
               />
@@ -172,24 +184,11 @@ export function CreateAccountDialog({
                 {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            {passwordConfirm && (
-              <p
-                className={`text-xs mt-2 flex items-center gap-1 ${
-                  passwordsMatch ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                <CheckCircle2 size={14} />
-                {passwordsMatch ? "Passwords match" : "Passwords do not match"}
+            {errors.password_confirmation && (
+              <p className="text-xs text-red-600 mt-1">
+                {errors.password_confirmation}
               </p>
             )}
-          </div>
-
-          {/* Info Box */}
-          <div className="bg-linear-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-900">
-              <strong>ℹ️ Note:</strong> The company will receive this
-              credentials and can update them after first login.
-            </p>
           </div>
         </div>
 
@@ -199,17 +198,18 @@ export function CreateAccountDialog({
             variant="outline"
             onClick={handleClose}
             disabled={loading}
-            className="px-6"
+            className="px-6 cursor-pointer"
           >
             Cancel
           </Button>
           <CustomButton
             variantType="primary"
+
             onClick={handleCreate}
             disabled={
-              loading || !password || !passwordConfirm || !passwordsMatch
+              isDisabled
             }
-            className="px-8"
+            className={isDisabled ? "cursor-not-allowed px-6" : "cursor-pointer px-6"}
           >
             {loading ? "Creating Account..." : "Create Account"}
           </CustomButton>

@@ -67,7 +67,7 @@ export function CompanyForm({
       initialData={initialData}
       onSubmit={handleSubmit}
       reloadTable={reloadTable}
-      icon={<Building2 className="h-5 w-5 text-white" />}
+      icon={<Building2 className="h-5 w-5 text-white cursor-pointer" />}
       isEditing={!!company?.id}
     />
   );

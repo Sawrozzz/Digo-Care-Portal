@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getFromApi, postToApi, updateToApi, deleteFromApi } from "../../utils";
 import type { Address } from "../../utils/utilTypes";
+import { createCompanyAccountSchema, type CreateCompanyAccountInput } from "./companyAttributes";
 
 interface CompanyCreateData {
   name: string;
@@ -65,4 +67,25 @@ export const updateCompany = (id: number, data: any) => {
 
 export const deleteCompany = (id: number) => {
   return deleteFromApi(`/companies/${id}`);
+};
+
+// Create Company Admin Account
+export const createCompanyAdminAccount = async (
+  companyId: number,
+  data: CreateCompanyAccountInput
+) => {
+  // Validate input with Zod schema
+  const validatedData = createCompanyAccountSchema.parse(data);
+  
+  const response = await postToApi(
+    `/admins/create_company_admin/${companyId}`,
+    {
+      account: {
+        password: validatedData.password,
+        password_confirmation: validatedData.password_confirmation,
+      },
+    }
+  );
+  
+  return response;
 };

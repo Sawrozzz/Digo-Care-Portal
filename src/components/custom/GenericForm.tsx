@@ -249,7 +249,7 @@ export function GenericForm({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1 h-11 border-gray-200 text-gray-700 hover:bg-gray-100 rounded-lg font-medium transition-all"
+              className="flex-1 h-11 border-gray-200 text-gray-700 hover:bg-gray-100 rounded-lg font-medium transition-all cursor-pointer"
             >
               Cancel
             </Button>
@@ -257,7 +257,7 @@ export function GenericForm({
               type="submit"
               disabled={loading}
               variantType="secondary"
-              className="flex-1 h-11 text-white rounded-lg font-medium transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+              className="flex-1 h-11 text-white rounded-lg font-medium transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? (
                 <span className="flex items-center gap-2">

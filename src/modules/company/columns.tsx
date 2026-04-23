@@ -5,11 +5,6 @@ import { Badge } from "../../components/ui/badge";
 
 import type { Company } from "./companyAttributes";
 
-import {
-  IconCircleCheckFilled,
-  IconCircleRectangleFilled,
-} from "@tabler/icons-react";
-
 import { Pencil, Trash2Icon } from "lucide-react";
 import { deleteCompany } from "./companyApi";
 import { DeleteConfirmationDialog } from "../../components/custom";
@@ -110,12 +105,23 @@ export const companyColumns = ({
     {
       accessorKey: "id",
       header: "ID",
-      accessorFn: (row) => row.id,
+      cell: ({row}) => (
+        <p>
+          {`C-#${row.original.id}`}
+        </p>
+      ),
     },
     {
       accessorKey: "name",
       header: "Name",
       cell: NameCell,
+    },
+    {
+      accessorKey: "display_name",
+      header: "Display Name",
+      cell: ({ row }) => (
+        <p className="font-bold">{row.original?.display_name || "N/A"}</p>
+      ),
     },
     {
       accessorKey: "phone",
@@ -217,16 +223,25 @@ export const companyColumns = ({
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => (
-        <Badge variant="outline" className=" uppercase">
-          {row.original.status === "active" ? (
-            <IconCircleCheckFilled color="green" />
-          ) : (
-            <IconCircleRectangleFilled color="red" />
-          )}
-          {row.original.status ?? "N/A"}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        const status = row.original.status?.toLowerCase();
+
+        const statusStyles: any = {
+          active: "bg-green-100 text-green-700 border-green-200",
+          inactive: "bg-gray-100 text-gray-700 border-gray-200",
+          pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
+          archived: "bg-red-100 text-red-700 border-red-200",
+        };
+
+        return (
+          <Badge
+            variant="outline"
+            className={`capitalize px-3 py-2 ${statusStyles[status]  || "bg-gray-100 text-gray-600 border-gray-200"}`}
+          >
+            {status}
+          </Badge>
+        );
+      },
     },
     {
       accessorKey: "actions",
