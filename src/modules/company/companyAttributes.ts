@@ -32,6 +32,7 @@ export const addressSchema = z.object({
   province: z.string().optional(),
   municipality: z.string().optional(),
   ward_no: z.number().optional(),
+  google_map: z.string().optional(),
 });
 
 export const companySchema = z.object({
@@ -129,7 +130,7 @@ export const companyFormFields: FormField[] = [
     label: "Province",
     type: "text",
     placeholder: "Enter province",
-    required: true,
+    required: false,
     gridCol: 2,
   },
   {
@@ -137,7 +138,7 @@ export const companyFormFields: FormField[] = [
     label: "Municipality",
     type: "text",
     placeholder: "Enter municipality",
-    required: true,
+    required: false,
     gridCol: 2,
   },
   {
@@ -145,7 +146,14 @@ export const companyFormFields: FormField[] = [
     label: "Ward No",
     type: "number",
     placeholder: "Enter ward number",
-    required: true,
+    required: false,
     gridCol: 2,
+  },
+  {
+    name: "address.google_map",
+    label: "Google Map",
+    type: "text",
+    placeholder: "Enter google map link",
+    required: false,
   },
 ];
