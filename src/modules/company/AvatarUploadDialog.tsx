@@ -133,11 +133,7 @@ export function AvatarUploadDialog({
 
           {/* Actions */}
           <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              disabled={loading}
-            >
+            <Button variant="outline" onClick={handleClose} disabled={loading}>
               Cancel
             </Button>
             <CustomButton

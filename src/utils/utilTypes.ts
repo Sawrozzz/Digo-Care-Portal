@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type Address = {
   id: number;
   country: string;
@@ -38,4 +39,9 @@ export type Company = {
   address?: Address;
   created_at?: Date;
   updated_at?: Date;
+};
+
+export const roleData: any = {
+  admin: "Admin",
+  super_admin: "Super Admin",
 };

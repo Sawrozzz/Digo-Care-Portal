@@ -3,13 +3,13 @@ import { useAuthStore } from "../zustand/authStore";
 import HomePage from "../pages/Home";
 
 export default function DashboardWrapper() {
-    const {account} = useAuthStore();
+  const { account } = useAuthStore();
 
-    if (!account) return <HomePage isLoggedIn={false} />;
+  if (!account) return <HomePage isLoggedIn={false} />;
 
-    return account.role === "super_admin" ? (
-        <DashboardPageList />
-    ) : (
-        <HomePage isLoggedIn={true} />
-    );
+  return account.role === "super_admin" ? (
+    <DashboardPageList />
+  ) : (
+    <HomePage isLoggedIn={true} />
+  );
 }

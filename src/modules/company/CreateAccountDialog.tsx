@@ -37,7 +37,7 @@ export function CreateAccountDialog({
 
   const validateForm = (): boolean => {
     setErrors({});
-    
+
     try {
       createCompanyAccountSchema.parse({
         password,
@@ -204,12 +204,11 @@ export function CreateAccountDialog({
           </Button>
           <CustomButton
             variantType="primary"
-
             onClick={handleCreate}
-            disabled={
-              isDisabled
+            disabled={isDisabled}
+            className={
+              isDisabled ? "cursor-not-allowed px-6" : "cursor-pointer px-6"
             }
-            className={isDisabled ? "cursor-not-allowed px-6" : "cursor-pointer px-6"}
           >
             {loading ? "Creating Account..." : "Create Account"}
           </CustomButton>

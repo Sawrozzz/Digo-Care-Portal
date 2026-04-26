@@ -12,6 +12,7 @@ import { CustomButton } from "../../components/custom/Button";
 import { BASE_URL } from "../../utils";
 import { AvatarUploadDialog } from "./AvatarUploadDialog";
 import { CreateAccountDialog } from "./CreateAccountDialog";
+import { RemoveAccountDialog } from "./RemoveAccountDialog";
 
 interface CompanyColumnsProps {
   onEdit: (company: Company) => void;
@@ -105,11 +106,7 @@ export const companyColumns = ({
     {
       accessorKey: "id",
       header: "ID",
-      cell: ({row}) => (
-        <p>
-          {`C-#${row.original.id}`}
-        </p>
-      ),
+      cell: ({ row }) => <p>{`C-#${row.original.id}`}</p>,
     },
     {
       accessorKey: "name",
@@ -173,6 +170,8 @@ export const companyColumns = ({
         const hasAcc = row.original.has_account;
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const [createAccountOpen, setCreateAccountOpen] = useState(false);
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const [removeAccountOpen, setRemoveAccountOpen] = useState(false);
 
         return (
           <>
@@ -193,7 +192,7 @@ export const companyColumns = ({
                 <CustomButton
                   variantType="secondary"
                   size="sm"
-                  onClick={() => alert(row.original.id)}
+                  onClick={() => setRemoveAccountOpen(true)}
                   className="w-fit text-sm cursor-pointer"
                 >
                   Remove Account
@@ -213,6 +212,13 @@ export const companyColumns = ({
             <CreateAccountDialog
               open={createAccountOpen}
               onOpenChange={setCreateAccountOpen}
+              companyId={row.original.id}
+              onSuccess={reloadTable}
+            />
+
+            <RemoveAccountDialog
+              open={removeAccountOpen}
+              onOpenChange={setRemoveAccountOpen}
               companyId={row.original.id}
               onSuccess={reloadTable}
             />
@@ -236,7 +242,7 @@ export const companyColumns = ({
         return (
           <Badge
             variant="outline"
-            className={`capitalize px-3 py-2 ${statusStyles[status]  || "bg-gray-100 text-gray-600 border-gray-200"}`}
+            className={`capitalize px-3 py-2 ${statusStyles[status] || "bg-gray-100 text-gray-600 border-gray-200"}`}
           >
             {status}
           </Badge>

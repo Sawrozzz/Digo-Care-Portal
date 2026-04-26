@@ -29,7 +29,7 @@ export function CompanySwitcher() {
 
   if (loading)
     return <div className="p-4 text-xs animate-pulse">Loading...</div>;
-  if (!activeCompany) return null;
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -43,10 +43,10 @@ export function CompanySwitcher() {
 
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
-                  {activeCompany.name}
+                  {activeCompany?.name || "No Company"}
                 </span>
                 <span className="truncate text-xs capitalize text-muted-foreground">
-                  {activeCompany.status}
+                  {activeCompany?.status || "Not assigned"}
                 </span>
               </div>
 
@@ -67,19 +67,25 @@ export function CompanySwitcher() {
                 Available Companies
               </DropdownMenuLabel>
 
-              {companies.map((company) => {
-                return (
-                  <DropdownMenuItem
-                    key={company.id}
-                    onClick={() => setActiveCompany(company)}
-                    className="gap-2 p-2 cursor-pointer"
-                  >
-                    <CompanyLogo company={company} size="small" />
+              {companies.length > 0 ? (
+                companies.map((company) => {
+                  return (
+                    <DropdownMenuItem
+                      key={company.id}
+                      onClick={() => setActiveCompany(company)}
+                      className="gap-2 p-2 cursor-pointer"
+                    >
+                      <CompanyLogo company={company} size="small" />
 
-                    <span className="flex-1 truncate">{company.name}</span>
-                  </DropdownMenuItem>
-                );
-              })}
+                      <span className="flex-1 truncate">{company.name}</span>
+                    </DropdownMenuItem>
+                  );
+                })
+              ) : (
+                <div className="p-2 text-xs text-muted-foreground text-center">
+                  No companies available
+                </div>
+              )}
             </DropdownMenuContent>
           )}
         </DropdownMenu>

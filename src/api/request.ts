@@ -8,7 +8,7 @@ const hasFile = (data: any): boolean => {
   return Object.values(data).some(
     (value) =>
       value instanceof File ||
-      (Array.isArray(value) && value.some((v) => v instanceof File)),
+      (Array.isArray(value) && value.some((v) => v instanceof File))
   );
 };
 
@@ -16,7 +16,7 @@ export const request = async (
   method: string,
   url: string,
   data?: any,
-  config = {},
+  config = {}
 ) => {
   try {
     let payload = data;

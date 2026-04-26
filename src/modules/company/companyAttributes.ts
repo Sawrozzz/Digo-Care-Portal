@@ -5,20 +5,26 @@ import type { Company, Address } from "../../utils/utilTypes";
 export type { Company, Address };
 
 // Create Company Account Schema with password validation
-export const createCompanyAccountSchema = z.object({
-  password: z.string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number"),
-  password_confirmation: z.string()
-    .min(8, "Password confirmation must be at least 8 characters"),
-}).refine((data) => data.password === data.password_confirmation, {
-  message: "Passwords do not match",
-  path: ["password_confirmation"],
-});
+export const createCompanyAccountSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number"),
+    password_confirmation: z
+      .string()
+      .min(8, "Password confirmation must be at least 8 characters"),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    message: "Passwords do not match",
+    path: ["password_confirmation"],
+  });
 
-export type CreateCompanyAccountInput = z.infer<typeof createCompanyAccountSchema>;
+export type CreateCompanyAccountInput = z.infer<
+  typeof createCompanyAccountSchema
+>;
 
 export const addressSchema = z.object({
   country: z.string().min(1, "Country is required"),
@@ -93,10 +99,11 @@ export const companyFormFields: FormField[] = [
     label: "Status",
     type: "select",
     required: true,
+    default: "pending",
     gridCol: 2,
     options: [
-      { label: "Active", value: "active" },
       { label: "Pending", value: "pending" },
+      { label: "Active", value: "active" },
       { label: "Inactive", value: "inactive" },
       { label: "Archived", value: "archived" },
     ],

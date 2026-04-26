@@ -4,15 +4,11 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "../../components/ui/badge";
 
 import type { Admin } from "./adminAttributes";
-import {
-  IconCircleCheckFilled,
-  IconCircleRectangleFilled,
-} from "@tabler/icons-react";
 
 import { Pencil, Trash2Icon } from "lucide-react";
 import { deleteAdmin } from "./adminApi";
 import { DeleteConfirmationDialog } from "../../components/custom";
-import { CustomButton } from "../../components/custom/Button";
+import { roleData } from "../../utils";
 
 interface AdminColumnsProps {
   onEdit: (admin: Admin) => void;
@@ -74,64 +70,59 @@ export const adminColumns = ({
     {
       accessorKey: "role",
       header: "Role",
-      accessorFn: (row) => row.role,
+      cell: ({ row }) => {
+        const role = row.original.role;
+
+        return <Badge variant="outline">{roleData[role] ?? role}</Badge>;
+      },
     },
     {
       accessorKey: "has_account",
       header: "Account",
       cell: ({ row }) => {
-        const hasAcc = row.original.has_account;
-
+        const hasAccount = row.original.has_account;
         return (
-          <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <span
               className={`h-2 w-2 rounded-full ${
-                hasAcc ? "bg-green-500" : "bg-gray-400"
+                hasAccount ? "bg-green-500" : "bg-gray-400"
               }`}
             />
             <p className="text-xs text-gray-600">
-              {hasAcc ? "Account exists" : "No account"}
+              {hasAccount ? "Account exists" : "No account"}
             </p>
           </div>
-            <div className="border-t w-42 border-gray-200" />
-        
-          {hasAcc ? (
-            <CustomButton
-              variantType="secondary"
-              size="sm"
-              onClick={() => alert(row.original.id)}
-              className="w-fit text-sm cursor-pointer"
-            >
-              Remove Account
-            </CustomButton>
-          ) : (
-            <CustomButton
-              variantType="primary"
-              size="sm"
-              onClick={() => alert(row.original.id)}
-              className="w-fit text-sm cursor-pointer"
-            >
-              Create Account
-            </CustomButton>
-          )}
-        </div>
         );
       },
     },
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => (
-        <Badge variant="outline" className=" uppercase">
-          {row.original.status === "active" ? (
-            <IconCircleCheckFilled color="green" />
-          ) : (
-            <IconCircleRectangleFilled color="red" />
-          )}
-          {row.original.status ?? "N/A"}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        const status = row.original.status?.toLowerCase();
+
+        const statusStyles: any = {
+          active: "bg-green-100 text-green-700 border-green-200",
+          in_active: "bg-gray-100 text-gray-700 border-gray-200",
+          pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
+          archived: "bg-red-100 text-red-700 border-red-200",
+        };
+
+        const outputData: any = {
+          active: "Active",
+          in_active: "Inactive",
+          archived: "Archived",
+        };
+
+        return (
+          <Badge
+            variant="outline"
+            className={`capitalize px-3 py-2 ${statusStyles[status] || "bg-gray-100 text-gray-600 border-gray-200"}`}
+          >
+            {outputData[status]}
+          </Badge>
+        );
+      },
     },
     {
       accessorKey: "actions",

@@ -1,12 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import {
@@ -24,6 +19,7 @@ export interface FormField {
   label: string;
   type: "text" | "email" | "select" | "number" | "textarea";
   placeholder?: string;
+  default?: string;
   required?: boolean;
   disabled?: boolean;
   options?: { label: string; value: string }[] | string[];
@@ -63,10 +59,17 @@ export function GenericForm({
   useEffect(() => {
     const newFormData: Record<string, any> = {};
     fields.forEach((field) => {
-      if (initialData[field.name] !== undefined && initialData[field.name] !== null && initialData[field.name] !== "") {
+      if (
+        initialData[field.name] !== undefined &&
+        initialData[field.name] !== null &&
+        initialData[field.name] !== ""
+      ) {
         newFormData[field.name] = String(initialData[field.name]);
       } else if (field.type === "select" && field.options) {
-        const defaultValue = typeof field.options[0] === "string" ? field.options[0] : field.options[0].value;
+        const defaultValue =
+          typeof field.options[0] === "string"
+            ? field.options[0]
+            : field.options[0].value;
         newFormData[field.name] = defaultValue;
       } else {
         newFormData[field.name] = "";
@@ -75,7 +78,9 @@ export function GenericForm({
     setFormData(newFormData);
   }, [initialData, open, fields]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -90,23 +95,30 @@ export function GenericForm({
 
     try {
       await onSubmit(formData);
-      toast.success(`${title} ${isEditing ? "updated" : "created"} successfully!`);
+      toast.success(
+        `${title} ${isEditing ? "updated" : "created"} successfully!`
+      );
       onOpenChange(false);
       await reloadTable();
     } catch (error: any) {
-      toast.error(`Error: ${error.message || `Failed to save ${title.toLowerCase()}`}`);
+      toast.error(
+        `Error: ${error.message || `Failed to save ${title.toLowerCase()}`}`
+      );
     } finally {
       setLoading(false);
     }
   };
 
   // Group fields by column
-  const groupedFields = fields.reduce((acc, field) => {
-    const col = field.gridCol || 1;
-    if (!acc[col]) acc[col] = [];
-    acc[col].push(field);
-    return acc;
-  }, {} as Record<number, FormField[]>);
+  const groupedFields = fields.reduce(
+    (acc, field) => {
+      const col = field.gridCol || 1;
+      if (!acc[col]) acc[col] = [];
+      acc[col].push(field);
+      return acc;
+    },
+    {} as Record<number, FormField[]>
+  );
 
   // Check if we have 2-column layout
   const has2Columns = Object.keys(groupedFields).length > 1;
@@ -123,7 +135,9 @@ export function GenericForm({
               {isEditing ? `Edit ${title}` : `Create New ${title}`}
             </DialogTitle>
           </div>
-          {subtitle && <p className="text-sm text-gray-500 ml-11">{subtitle}</p>}
+          {subtitle && (
+            <p className="text-sm text-gray-500 ml-11">{subtitle}</p>
+          )}
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
@@ -141,15 +155,19 @@ export function GenericForm({
                   {field.type === "select" ? (
                     <Select
                       value={formData[field.name] || ""}
-                      onValueChange={(value) => handleSelectChange(field.name, value)}
+                      onValueChange={(value) =>
+                        handleSelectChange(field.name, value)
+                      }
                     >
                       <SelectTrigger className="h-11 bg-white border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {field.options?.map((option) => {
-                          const value = typeof option === "string" ? option : option.value;
-                          const label = typeof option === "string" ? option : option.label;
+                          const value =
+                            typeof option === "string" ? option : option.value;
+                          const label =
+                            typeof option === "string" ? option : option.label;
                           return (
                             <SelectItem key={value} value={value}>
                               {label}
@@ -189,22 +207,26 @@ export function GenericForm({
               {fields.map((field) => (
                 <div key={field.name} className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    {field.icon }
+                    {field.icon}
                     {field.label}
                   </label>
 
                   {field.type === "select" ? (
                     <Select
                       value={formData[field.name] || ""}
-                      onValueChange={(value) => handleSelectChange(field.name, value)}
+                      onValueChange={(value) =>
+                        handleSelectChange(field.name, value)
+                      }
                     >
                       <SelectTrigger className="h-11 bg-white border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {field.options?.map((option) => {
-                          const value = typeof option === "string" ? option : option.value;
-                          const label = typeof option === "string" ? option : option.label;
+                          const value =
+                            typeof option === "string" ? option : option.value;
+                          const label =
+                            typeof option === "string" ? option : option.label;
                           return (
                             <SelectItem key={value} value={value}>
                               {label}

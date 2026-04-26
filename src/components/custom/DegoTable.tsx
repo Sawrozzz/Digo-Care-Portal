@@ -124,7 +124,10 @@ export function DegoTable<TData, TValue>({
           {/* Header */}
           <TableHeader className="bg-linear-to-r from-gray-50 to-gray-100 border-b border-gray-200">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-gray-100 transition-colors">
+              <TableRow
+                key={headerGroup.id}
+                className="hover:bg-gray-100 transition-colors"
+              >
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
@@ -134,7 +137,7 @@ export function DegoTable<TData, TValue>({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext(),
+                          header.getContext()
                         )}
                   </TableHead>
                 ))}
@@ -152,14 +155,17 @@ export function DegoTable<TData, TValue>({
                     border-b border-gray-100
                     transition-all duration-200
                     hover:bg-blue-50/40
-                    ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}
+                    ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/30"}
                   `}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-6 py-4 text-sm text-gray-700">
+                    <TableCell
+                      key={cell.id}
+                      className="px-6 py-4 text-sm text-gray-700"
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}

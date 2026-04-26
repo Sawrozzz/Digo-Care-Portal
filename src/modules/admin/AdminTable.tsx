@@ -54,7 +54,10 @@ export default function AdminTable() {
   return (
     <>
       <DegoTable
-        columns={adminColumns({ onEdit: handleEditClick, reloadTable: fetchAdmins })}
+        columns={adminColumns({
+          onEdit: handleEditClick,
+          reloadTable: fetchAdmins,
+        })}
         data={adminData}
         searchKey="name"
         onAddData={handleAddClick}

@@ -15,20 +15,20 @@ export default function ProtectedRoute({ children, requiredRole }: Props) {
     return <Navigate to="/login" replace />;
   }
 
-  if(!account){
-    return(
+  if (!account) {
+    return (
       <div className="flex items-center justify-center h-full">
         <Loader size={92} />
       </div>
-    )
+    );
+  }
+  if (!account && !isAuthenticated) {
+    return <Navigate to="/login" replace />;
   }
 
   if (requiredRole && account?.role !== requiredRole) {
-    // fallback if role doesn't match
     return <Navigate to="/page-not-found" replace />;
   }
 
   return <>{children}</>;
 }
-
-

@@ -56,7 +56,9 @@ export function DeleteConfirmationDialog({
               Delete {itemName}?
             </DialogTitle>
             <DialogDescription className="text-base text-gray-600">
-              Are you sure you want to delete <span className="font-semibold text-gray-900">"{itemName}"</span>? This action cannot be undone.
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-gray-900">"{itemName}"</span>?
+              This action cannot be undone.
             </DialogDescription>
           </div>
         </DialogHeader>
