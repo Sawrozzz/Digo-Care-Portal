@@ -2,7 +2,11 @@
 import { create } from "zustand";
 import apiClient from "../api/axios";
 
-import { parseCompanyResponse, parseSingleCompanyData, type Company } from "../utils";
+import {
+  parseCompanyResponse,
+  parseSingleCompanyData,
+  type Company,
+} from "../utils";
 
 type CompanyState = {
   companies: Company[];
@@ -12,7 +16,7 @@ type CompanyState = {
   error: string | null;
   initializeCompanies: (
     role: string,
-    companyId?: number | null,
+    companyId?: number | null
   ) => Promise<void>;
   getAllCompanies: () => Promise<void>;
   getSingleCompany: (id: number) => Promise<void>;

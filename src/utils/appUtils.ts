@@ -51,6 +51,7 @@ export const parseCompanyResponse = (response: any): Company[] => {
       email: attr.email,
       avatar: attr.avatar,
       address: attr.address,
+      has_account: attr.has_account,
       created_at: toDateFormat(attr.created_at).toDate(),
       updated_at: toDateFormat(attr.updated_at).toDate(),
     };
@@ -136,7 +137,9 @@ export const adminResponseForTable = (response: any): any[] => {
     const attr = item.attributes;
     return {
       id: attr?.id,
-      name: attr?.name || `${attr?.first_name || ''} ${attr?.last_name || ''}`.trim(),
+      name:
+        attr?.name ||
+        `${attr?.first_name || ""} ${attr?.last_name || ""}`.trim(),
       first_name: attr?.first_name,
       last_name: attr?.last_name,
       role: attr?.role,

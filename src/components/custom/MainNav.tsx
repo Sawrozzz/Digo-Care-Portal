@@ -52,14 +52,12 @@ export default function MainNav({
       {/* Main Content */}
       <SidebarInset>
         <div className="@container/main flex flex-1 flex-col bg-(--bg-main)">
-
           {/* Page wrapper */}
           <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
             <PageTransition>
               <Outlet />
             </PageTransition>
           </div>
-
         </div>
       </SidebarInset>
     </SidebarProvider>

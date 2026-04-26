@@ -16,7 +16,7 @@ export default function UserNav() {
     try {
       logout();
       navigate("/login");
-      toast.success("Logout successfull")
+      toast.success("Logout successfull");
     } catch (error: any) {
       toast.error(error);
     }
