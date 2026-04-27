@@ -38,7 +38,8 @@ const formatCompanyData = (
     data["address.district"] ||
     data["address.province"] ||
     data["address.municipality"] ||
-    data["address.ward_no"]
+    data["address.ward_no"] ||
+    data["address.google_map"]
   ) {
     formatted.address = {
       country: data["address.country"],
@@ -46,6 +47,7 @@ const formatCompanyData = (
       province: data["address.province"],
       municipality: data["address.municipality"],
       ward_no: parseInt(data["address.ward_no"]),
+      google_map: data["address.google_map"],
     };
 
     delete formatted["address.country"];
@@ -53,6 +55,7 @@ const formatCompanyData = (
     delete formatted["address.province"];
     delete formatted["address.municipality"];
     delete formatted["address.ward_no"];
+    delete formatted["address.google_map"];
   }
 
   return formatted;
@@ -73,7 +76,13 @@ export const createCompany = (data: any) => {
 
 export const updateCompany = (id: number, data: any) => {
   const formattedData = formatCompanyData(data);
-  return updateToApi(`/companies/${id}`, { company: formattedData });
+
+  return updateToApi(`/companies/${id}`, {
+    company: {
+      ...formattedData,
+      ...(data.avatar && { avatar: data.avatar }),
+    },
+  });
 };
 
 export const deleteCompany = (id: number) => {

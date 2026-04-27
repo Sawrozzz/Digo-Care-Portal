@@ -1,17 +1,23 @@
+import { Loader } from "../../components/custom";
 import { SiteHeader } from "../../components/ui/site-header";
-import { useAuthStore } from "../../zustand/authStore";
 import { useCompanyStore } from "../../zustand/companyStore";
 
+import PatientTable from "./PatientTable";
+
 export default function PatientPage() {
-  const { activeCompany } = useCompanyStore();
-  const { account } = useAuthStore();
+  const { activeCompany, loading } = useCompanyStore();
+
+  if (loading) {
+    return <Loader size={72} />;
+  }
   return (
     <>
       <SiteHeader name="Patient" />
-      <p className="p-6">
-        This is Patient Page of Company:{" "}
-        {account?.company_id || activeCompany?.id}
-      </p>
+      {activeCompany?.id ? (
+        <PatientTable companyId={activeCompany.id} />
+      ) : (
+        <p>No Patients available</p>
+      )}
     </>
   );
 }

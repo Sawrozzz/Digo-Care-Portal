@@ -6,13 +6,13 @@ import { Badge } from "../../components/ui/badge";
 import type { Company } from "./companyAttributes";
 
 import { Pencil, Trash2Icon } from "lucide-react";
-import { deleteCompany } from "./companyApi";
+import { deleteCompany, updateCompany } from "./companyApi";
 import { DeleteConfirmationDialog } from "../../components/custom";
 import { CustomButton } from "../../components/custom/Button";
 import { BASE_URL } from "../../utils";
-import { AvatarUploadDialog } from "./AvatarUploadDialog";
 import { CreateAccountDialog } from "./CreateAccountDialog";
 import { RemoveAccountDialog } from "./RemoveAccountDialog";
+import { AvatarUploadDialog } from "../../components/custom/AvatarUploadDialogue";
 
 interface CompanyColumnsProps {
   onEdit: (company: Company) => void;
@@ -91,11 +91,17 @@ export const companyColumns = ({
             <p className="text-xs text-gray-500">{email}</p>
           </div>
         </div>
-
         <AvatarUploadDialog
           open={avatarUploadOpen}
           onOpenChange={setAvatarUploadOpen}
-          companyId={row.original.id}
+          title="Upload Company Avatar"
+          fieldName="avatar"
+          onUpload={async (formData) => {
+            const file = formData.get("avatar") as File;
+            await updateCompany(row.original.id, {
+              avatar: file,
+            });
+          }}
           onSuccess={reloadTable}
         />
       </>

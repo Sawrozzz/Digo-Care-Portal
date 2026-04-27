@@ -17,7 +17,7 @@ import { CustomButton } from "./Button";
 export interface FormField {
   name: string;
   label: string;
-  type: "text" | "email" | "select" | "number" | "textarea";
+  type: "text" | "email" | "select" | "number" | "textarea" | "date";
   placeholder?: string;
   default?: string;
   required?: boolean;

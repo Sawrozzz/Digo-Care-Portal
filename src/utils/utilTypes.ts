@@ -41,6 +41,27 @@ export type Company = {
   updated_at?: Date;
 };
 
+export type Patient = {
+  id: number;
+  patient_id: string;
+  first_name: string;
+  middle_name?: string;
+  last_name: string;
+  phone: string;
+  phone2?: string;
+  email: string;
+  gender?: string;
+  dob?: string;
+  blood_group?: string;
+  marital_status?: string;
+  status: string;
+  has_account?: boolean;
+  avatar?: Avatar;
+  address?: Address;
+  created_at?: Date;
+  updated_at?: Date;
+};
+
 export const roleData: any = {
   admin: "Admin",
   super_admin: "Super Admin",
