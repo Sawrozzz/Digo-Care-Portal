@@ -293,6 +293,8 @@ export const parseSinglePatientData = (response: any): any | null => {
     status: attr.status,
     has_account: attr.has_account,
     avatar: attr.avatar,
+    x_rays: attr.x_rays || [],
+    documents: attr.documents || [],
     address: attr.address,
     created_at: toDateFormat(attr?.created_at).toDate(),
     updated_at: toDateFormat(attr.updated_at).toDate(),

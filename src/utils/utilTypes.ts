@@ -16,6 +16,23 @@ type Avatar = {
   url: string;
 };
 
+type Document = {
+  id: number;
+  name: string;
+  byte_size: number;
+  content_type: string;
+  url: string;
+  created_at: string;
+};
+type X_Ray = {
+  id: number;
+  name: string;
+  byte_size: number;
+  content_type: string;
+  url: string;
+  created_at: string;
+};
+
 export type Account = {
   id: number;
   email: string;
@@ -58,6 +75,8 @@ export type Patient = {
   status: string;
   has_account?: boolean;
   avatar?: Avatar;
+  documents?: Document[];
+  x_rays?: X_Ray[];
   address?: Address;
   created_at?: Date;
   updated_at?: Date;
