@@ -32,6 +32,7 @@ const flattenCompanyData = (company: Company | null | undefined): any => {
     flattened["address.province"] = company.address.province;
     flattened["address.municipality"] = company.address.municipality;
     flattened["address.ward_no"] = company.address.ward_no;
+    flattened["address.google_map"] = company.address.google_map;
   }
 
   return flattened;

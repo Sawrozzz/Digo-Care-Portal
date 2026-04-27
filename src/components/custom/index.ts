@@ -7,3 +7,4 @@ export * from "./Loader";
 export * from "./MainNav";
 export * from "./PageTransitionWrapper";
 export * from "./UserNav";
+export * from "./CustomTab";

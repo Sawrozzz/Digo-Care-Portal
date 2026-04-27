@@ -14,15 +14,19 @@ import { CustomButton } from "../../components/custom/Button";
 interface AvatarUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  companyId: number;
+  onUpload: (formData: FormData) => Promise<void>; // 🔥 injected API
   onSuccess: () => Promise<void>;
+  title?: string;
+  fieldName?: string; // default: "avatar"
 }
 
 export function AvatarUploadDialog({
   open,
   onOpenChange,
-  companyId,
+  onUpload,
   onSuccess,
+  title = "Upload Avatar",
+  fieldName = "avatar",
 }: AvatarUploadDialogProps) {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -30,20 +34,18 @@ export function AvatarUploadDialog({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      if (!selectedFile.type.startsWith("image/")) {
-        toast.error("Please select a valid image file");
-        return;
-      }
+    if (!selectedFile) return;
 
-      setFile(selectedFile);
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(selectedFile);
+    if (!selectedFile.type.startsWith("image/")) {
+      toast.error("Please select a valid image file");
+      return;
     }
+
+    setFile(selectedFile);
+
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result as string);
+    reader.readAsDataURL(selectedFile);
   };
 
   const handleUpload = async () => {
@@ -55,27 +57,12 @@ export function AvatarUploadDialog({
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("company[avatar]", file);
+      formData.append(fieldName, file);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || ""}/companies/${companyId}`,
-        {
-          method: "PATCH",
-          body: formData,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to upload avatar");
-      }
+      await onUpload(formData);
 
       toast.success("Avatar uploaded successfully!");
-      setFile(null);
-      setPreview(null);
-      onOpenChange(false);
+      handleClose();
       await onSuccess();
     } catch (error: any) {
       toast.error(error.message || "Failed to upload avatar");
@@ -94,11 +81,10 @@ export function AvatarUploadDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Upload Company Avatar</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          {/* Preview */}
           {preview ? (
             <div className="relative w-32 h-32 mx-auto">
               <img
@@ -111,7 +97,7 @@ export function AvatarUploadDialog({
                   setFile(null);
                   setPreview(null);
                 }}
-                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
               >
                 <X size={16} />
               </button>
@@ -122,7 +108,6 @@ export function AvatarUploadDialog({
             </div>
           )}
 
-          {/* File Input */}
           <input
             type="file"
             accept="image/*"
@@ -131,7 +116,6 @@ export function AvatarUploadDialog({
             className="px-4 py-2 border border-gray-300 rounded-md cursor-pointer text-sm"
           />
 
-          {/* Actions */}
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={handleClose} disabled={loading}>
               Cancel

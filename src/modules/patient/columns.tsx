@@ -3,30 +3,35 @@ import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "../../components/ui/badge";
 
-import type { Company } from "./companyAttributes";
+import type { Patient } from "../../utils";
 
-import { Pencil, Trash2Icon } from "lucide-react";
-import { deleteCompany, updateCompany } from "./companyApi";
+import { Pencil, Trash2Icon, Copy, Check } from "lucide-react";
+import { deletePatient, updatePatient } from "./patientApi";
 import { DeleteConfirmationDialog } from "../../components/custom";
-import { CustomButton } from "../../components/custom/Button";
+// import { CustomButton } from "../../components/custom/Button";
 import { BASE_URL } from "../../utils";
-import { CreateAccountDialog } from "./CreateAccountDialog";
-import { RemoveAccountDialog } from "./RemoveAccountDialog";
+
+import { useCompanyStore } from "../../zustand/companyStore";
 import { AvatarUploadDialog } from "../../components/custom/AvatarUploadDialogue";
 
-interface CompanyColumnsProps {
-  onEdit: (company: Company) => void;
+interface PatientColumnsProps {
+  onEdit: (patient: Patient) => void;
   reloadTable: () => Promise<void>;
-  onRowClick?: (company: Company) => void;
+  onRowClick?: (patient: Patient) => void;
 }
 
-export const companyColumns = ({
+export const patientColumns = ({
   onEdit,
   reloadTable,
   onRowClick,
-}: CompanyColumnsProps): ColumnDef<Company>[] => {
+}: PatientColumnsProps): ColumnDef<Patient>[] => {
   const DeleteActionCell = ({ row }: { row: any }) => {
+    const { activeCompany } = useCompanyStore();
     const [deleteOpen, setDeleteOpen] = useState(false);
+
+    const firstName = row.original.first_name;
+    const lastName = row.original.last_name;
+    const name = `${firstName}, ${lastName}`;
 
     return (
       <>
@@ -42,8 +47,10 @@ export const companyColumns = ({
         <DeleteConfirmationDialog
           open={deleteOpen}
           onOpenChange={setDeleteOpen}
-          itemName={row.original.name}
-          onConfirm={() => deleteCompany(row.original.id)}
+          itemName={name}
+          onConfirm={() =>
+            deletePatient(Number(activeCompany?.id), row.original.id)
+          }
           reloadTable={reloadTable}
         />
       </>
@@ -51,7 +58,13 @@ export const companyColumns = ({
   };
 
   const NameCell = ({ row }: { row: any }) => {
-    const name = row.original.name;
+    const { activeCompany } = useCompanyStore();
+
+    const firstName = row.original.first_name;
+    const lastName = row.original.last_name;
+    // const middleName = row.original?.middle_name;
+
+    const name = `${firstName}, ${lastName}`;
     const email = row.original.email;
     const avatar = row.original.avatar;
     const avatarUrl = row.original.avatar?.url;
@@ -98,7 +111,7 @@ export const companyColumns = ({
           fieldName="avatar"
           onUpload={async (formData) => {
             const file = formData.get("avatar") as File;
-            await updateCompany(row.original.id, {
+            await updatePatient(Number(activeCompany?.id), row.original.id, {
               avatar: file,
             });
           }}
@@ -108,11 +121,47 @@ export const companyColumns = ({
     );
   };
 
+  const PatientIdCell = ({ row }: { row: any }) => {
+    const [copied, setCopied] = useState(false);
+    const id = row.original.patient_id;
+
+    const handleCopy = async () => {
+      await navigator.clipboard.writeText(id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+      <div className="relative inline-block">
+        <button
+          onClick={handleCopy}
+          title="Click to Copy"
+          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition cursor-pointer"
+        >
+          <span>{id}</span>
+
+          <span className="opacity-0 group-hover:opacity-100 transition">
+            {copied ? (
+              <Check size={12} className="text-green-600" />
+            ) : (
+              <Copy size={12} />
+            )}
+          </span>
+        </button>
+        {copied && (
+          <span className="absolute -top-6 -right-6 -translate-x-1/2 text-[10px] px-2 py-0.5 rounded text-white bg-gray-400 shadow-sm animate-fade-in">
+            Copied
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return [
     {
       accessorKey: "id",
       header: "ID",
-      cell: ({ row }) => <p>{`C-#${row.original.id}`}</p>,
+      cell: ({ row }) => <p>{`P-#${row.original.id}`}</p>,
     },
     {
       accessorKey: "name",
@@ -120,11 +169,9 @@ export const companyColumns = ({
       cell: NameCell,
     },
     {
-      accessorKey: "display_name",
-      header: "Display Name",
-      cell: ({ row }) => (
-        <p className="font-bold">{row.original?.display_name || "N/A"}</p>
-      ),
+      accessorKey: "patient_id",
+      header: "PATIENT ID",
+      cell: PatientIdCell,
     },
     {
       accessorKey: "phone",
@@ -132,9 +179,8 @@ export const companyColumns = ({
       cell: ({ row }) => {
         const phone = row.original.phone;
         const phone2 = row.original.phone2;
-        const phone3 = row.original.phone3;
 
-        const phones = [phone, phone2, phone3].filter(Boolean);
+        const phones = [phone, phone2].filter(Boolean);
 
         return (
           <div className="flex flex-col gap-1">
@@ -157,78 +203,10 @@ export const companyColumns = ({
                     Secondary
                   </span>
                 )}
-                {idx === 2 && (
-                  <span className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
-                    Tertiary
-                  </span>
-                )}
                 <span>{p}</span>
               </div>
             ))}
           </div>
-        );
-      },
-    },
-    {
-      accessorKey: "has_account",
-      header: "Account",
-      cell: ({ row }) => {
-        const hasAcc = row.original.has_account;
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const [createAccountOpen, setCreateAccountOpen] = useState(false);
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const [removeAccountOpen, setRemoveAccountOpen] = useState(false);
-
-        return (
-          <>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`h-2 w-2 rounded-full ${
-                    hasAcc ? "bg-green-500" : "bg-gray-400"
-                  }`}
-                />
-                <p className="text-xs text-gray-600">
-                  {hasAcc ? "Account exists" : "No account"}
-                </p>
-              </div>
-              <div className="border-t w-42 border-gray-200" />
-
-              {hasAcc ? (
-                <CustomButton
-                  variantType="secondary"
-                  size="sm"
-                  onClick={() => setRemoveAccountOpen(true)}
-                  className="w-fit text-sm cursor-pointer"
-                >
-                  Remove Account
-                </CustomButton>
-              ) : (
-                <CustomButton
-                  variantType="primary"
-                  size="sm"
-                  onClick={() => setCreateAccountOpen(true)}
-                  className="w-fit text-sm cursor-pointer"
-                >
-                  Create Account
-                </CustomButton>
-              )}
-            </div>
-
-            <CreateAccountDialog
-              open={createAccountOpen}
-              onOpenChange={setCreateAccountOpen}
-              companyId={row.original.id}
-              onSuccess={reloadTable}
-            />
-
-            <RemoveAccountDialog
-              open={removeAccountOpen}
-              onOpenChange={setRemoveAccountOpen}
-              companyId={row.original.id}
-              onSuccess={reloadTable}
-            />
-          </>
         );
       },
     },
