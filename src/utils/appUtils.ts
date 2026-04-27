@@ -1,25 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from "dayjs";
-import type { Company } from "./utilTypes";
+import type { Company, Patient } from "./utilTypes";
 
-export const toFormData = (data: Record<string, any>) => {
-  const formData = new FormData();
+export const toFormData = (obj: any, form = new FormData(), parentKey = "") => {
+  Object.entries(obj).forEach(([key, value]) => {
+    const fullKey = parentKey ? `${parentKey}[${key}]` : key;
 
-  Object.entries(data).forEach(([key, value]) => {
-    if (value === null || value === undefined) return;
+    if (value instanceof File || value instanceof Blob) {
+      form.append(fullKey, value);
+      return;
+    }
 
-    if (Array.isArray(value)) {
-      value.forEach((item, index) => {
-        formData.append(`${key}[${index}]`, item);
-      });
-    } else if (typeof value === "object" && !(value instanceof File)) {
-      formData.append(key, JSON.stringify(value));
-    } else {
-      formData.append(key, value);
+    if (value && typeof value === "object" && !(value instanceof Date)) {
+      return toFormData(value, form, fullKey);
+    }
+
+    if (value !== undefined && value !== null) {
+      form.append(fullKey, value as any);
     }
   });
 
-  return formData;
+  return form;
 };
 
 export const decodeTokenFromHeader = (authHeader: Record<string, any>) => {
@@ -217,4 +218,53 @@ export const parseSingleAdminDataFixed = (response: any): any | null => {
     created_at: attr.created_at,
     updated_at: attr.updated_at,
   };
+};
+
+export const parsePatientResponse = (response: any): Patient[] => {
+  const data = response.data;
+
+  if (!data || !Array.isArray(data)) return [];
+
+  return data.map((item: any) => {
+    const attr = item.attributes;
+
+    return {
+      id: attr.id,
+      patient_id: attr.patient_id,
+      first_name: attr.first_name,
+      middle_name: attr.middle_name,
+      last_name: attr.last_name,
+      phone: attr.phone,
+      phone2: attr.phone2,
+      email: attr.email,
+      gender: attr.gender,
+      dob: attr.dob,
+      blood_group: attr.blood_group,
+      marital_status: attr.marital_status,
+      status: attr.status,
+      has_account: attr.has_account,
+      avatar: attr.avatar,
+
+      address: attr.address
+        ? {
+            id: attr.address.id,
+            country: attr.address.country,
+            province: attr.address.province,
+            district: attr.address.district,
+            municipality: attr.address.municipality,
+            ward_no: attr.address.ward_no
+              ? Number(attr.address.ward_no)
+              : undefined,
+            google_map: attr.address.google_map,
+          }
+        : undefined,
+
+      created_at: attr.created_at
+        ? toDateFormat(attr.created_at).toDate()
+        : undefined,
+      updated_at: attr.updated_at
+        ? toDateFormat(attr.updated_at).toDate()
+        : undefined,
+    };
+  });
 };

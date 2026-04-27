@@ -2,14 +2,18 @@
 import apiClient from "./axios";
 import { toFormData } from "../utils/appUtils";
 
-const hasFile = (data: any): boolean => {
-  if (!data) return false;
+export const hasFile = (obj: any): boolean => {
+  if (!obj || typeof obj !== "object") return false;
 
-  return Object.values(data).some(
-    (value) =>
-      value instanceof File ||
-      (Array.isArray(value) && value.some((v) => v instanceof File))
-  );
+  return Object.values(obj).some((value) => {
+    if (value instanceof File || value instanceof Blob) return true;
+
+    if (typeof value === "object" && value !== null) {
+      return hasFile(value);
+    }
+
+    return false;
+  });
 };
 
 export const request = async (
