@@ -5,7 +5,8 @@ import { DegoTable } from "../../components/custom/DegoTable";
 import { patientColumns } from "./columns";
 import { getAllPatientsOfACompany } from "./patientApi";
 import { parsePatientResponse } from "../../utils/appUtils";
-// import type { Patient } from "../../utils";
+import { PatientForm } from "./PatientFrom";
+import type { Patient } from "../../utils";
 
 interface PatientTableProps {
   companyId: number;
@@ -17,6 +18,8 @@ export default function PatientTable({ companyId }: PatientTableProps) {
   const [patientData, setPatientData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   const fetchPatients = async () => {
     setLoading(true);
@@ -38,11 +41,13 @@ export default function PatientTable({ companyId }: PatientTableProps) {
   }, [companyId]);
 
   const handleAddClick = () => {
-    alert("clicked");
+    setSelectedPatient(null);
+    setFormOpen(true);
   };
 
-  const handleEditClick = () => {
-    alert("clicked");
+  const handleEditClick = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setFormOpen(true);
   };
 
   const handleRowClick = () => {
@@ -68,6 +73,14 @@ export default function PatientTable({ companyId }: PatientTableProps) {
         data={patientData}
         searchKey="name"
         onAddData={handleAddClick}
+      />
+      <PatientForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        patient={selectedPatient}
+        companyId={companyId}
+        onSuccess={() => setFormOpen(false)}
+        reloadTable={fetchPatients}
       />
     </>
   );
