@@ -268,3 +268,33 @@ export const parsePatientResponse = (response: any): Patient[] => {
     };
   });
 };
+
+export const parseSinglePatientData = (response: any): any | null => {
+  const data = response?.data;
+
+  if (!data) return null;
+  const attr = data.attributes;
+  if (!attr) return null;
+
+  return {
+    id: attr.id,
+    patient_id: attr.patient_id,
+    name: `${attr.first_name || ""} ${attr.last_name || ""}`.trim(),
+    first_name: attr.first_name,
+    middle_name: attr.middle_name,
+    last_name: attr.last_name,
+    phone: attr.phone,
+    phone2: attr.phone2,
+    email: attr.email,
+    gender: attr.gender,
+    dob: attr.dob,
+    blood_group: attr.blood_group,
+    marital_status: attr.marital_status,
+    status: attr.status,
+    has_account: attr.has_account,
+    avatar: attr.avatar,
+    address: attr.address,
+    created_at: toDateFormat(attr?.created_at).toDate(),
+    updated_at: toDateFormat(attr.updated_at).toDate(),
+  };
+};

@@ -5,13 +5,14 @@ import { Badge } from "../../components/ui/badge";
 
 import type { Patient } from "../../utils";
 
-import { Pencil, Trash2Icon } from "lucide-react";
-import { deletePatient } from "./patientApi";
+import { Pencil, Trash2Icon, Copy, Check } from "lucide-react";
+import { deletePatient, updatePatient } from "./patientApi";
 import { DeleteConfirmationDialog } from "../../components/custom";
 // import { CustomButton } from "../../components/custom/Button";
 import { BASE_URL } from "../../utils";
 
 import { useCompanyStore } from "../../zustand/companyStore";
+import { AvatarUploadDialog } from "../../components/custom/AvatarUploadDialogue";
 
 interface PatientColumnsProps {
   onEdit: (patient: Patient) => void;
@@ -57,6 +58,8 @@ export const patientColumns = ({
   };
 
   const NameCell = ({ row }: { row: any }) => {
+    const { activeCompany } = useCompanyStore();
+
     const firstName = row.original.first_name;
     const lastName = row.original.last_name;
     // const middleName = row.original?.middle_name;
@@ -65,11 +68,15 @@ export const patientColumns = ({
     const email = row.original.email;
     const avatar = row.original.avatar;
     const avatarUrl = row.original.avatar?.url;
+    const [avatarUploadOpen, setAvatarUploadOpen] = useState(false);
 
     return (
       <>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center border-white shadow-sm cursor-pointer hover:opacity-80 transition-opacity">
+          <div
+            onClick={() => setAvatarUploadOpen(true)}
+            className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center border-white shadow-sm cursor-pointer hover:opacity-80 transition-opacity"
+          >
             {avatar?.url ? (
               <img
                 src={
@@ -97,7 +104,56 @@ export const patientColumns = ({
             <p className="text-xs text-gray-500">{email}</p>
           </div>
         </div>
+        <AvatarUploadDialog
+          open={avatarUploadOpen}
+          onOpenChange={setAvatarUploadOpen}
+          title="Upload Company Avatar"
+          fieldName="avatar"
+          onUpload={async (formData) => {
+            const file = formData.get("avatar") as File;
+            await updatePatient(Number(activeCompany?.id), row.original.id, {
+              avatar: file,
+            });
+          }}
+          onSuccess={reloadTable}
+        />
       </>
+    );
+  };
+
+  const PatientIdCell = ({ row }: { row: any }) => {
+    const [copied, setCopied] = useState(false);
+    const id = row.original.patient_id;
+
+    const handleCopy = async () => {
+      await navigator.clipboard.writeText(id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+      <div className="relative inline-block">
+        <button
+          onClick={handleCopy}
+          title="Click to Copy"
+          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition cursor-pointer"
+        >
+          <span>{id}</span>
+
+          <span className="opacity-0 group-hover:opacity-100 transition">
+            {copied ? (
+              <Check size={12} className="text-green-600" />
+            ) : (
+              <Copy size={12} />
+            )}
+          </span>
+        </button>
+        {copied && (
+          <span className="absolute -top-6 -right-6 -translate-x-1/2 text-[10px] px-2 py-0.5 rounded text-white bg-gray-400 shadow-sm animate-fade-in">
+            Copied
+          </span>
+        )}
+      </div>
     );
   };
 
@@ -108,14 +164,14 @@ export const patientColumns = ({
       cell: ({ row }) => <p>{`P-#${row.original.id}`}</p>,
     },
     {
-      accessorKey: "patient_id",
-      header: "PATIENT ID",
-      cell: ({ row }) => <p>{row.original.patient_id}</p>,
-    },
-    {
       accessorKey: "name",
       header: "Name",
       cell: NameCell,
+    },
+    {
+      accessorKey: "patient_id",
+      header: "PATIENT ID",
+      cell: PatientIdCell,
     },
     {
       accessorKey: "phone",

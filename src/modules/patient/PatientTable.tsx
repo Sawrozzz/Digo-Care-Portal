@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { DegoTable } from "../../components/custom/DegoTable";
 import { patientColumns } from "./columns";
 import { getAllPatientsOfACompany } from "./patientApi";
@@ -13,7 +13,7 @@ interface PatientTableProps {
 }
 
 export default function PatientTable({ companyId }: PatientTableProps) {
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [patientData, setPatientData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -50,8 +50,8 @@ export default function PatientTable({ companyId }: PatientTableProps) {
     setFormOpen(true);
   };
 
-  const handleRowClick = () => {
-    alert("clicked");
+  const handleRowClick = (patient: Patient) => {
+    navigate(`/patients/${patient.id}`);
   };
 
   if (loading) {
