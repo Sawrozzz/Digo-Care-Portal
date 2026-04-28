@@ -1,58 +1,45 @@
 import z from "zod";
-import type { FormField } from "../../components/custom/GenericForm";
-import type { Company, Address } from "../../utils";
+import type { FormField } from "../../components/custom";
 import { addressSchema } from "../../utils";
 
-export type { Company, Address };
-
-// Create Company Account Schema with password validation
-export const createCompanyAccountSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
-    password_confirmation: z
-      .string()
-      .min(8, "Password confirmation must be at least 8 characters"),
-  })
-  .refine((data) => data.password === data.password_confirmation, {
-    message: "Passwords do not match",
-    path: ["password_confirmation"],
-  });
-
-export type CreateCompanyAccountInput = z.infer<
-  typeof createCompanyAccountSchema
->;
-
-export const companySchema = z.object({
-  name: z.string().min(1, "Company name is required"),
-  display_name: z.string().optional(),
-  email: z.string().email("Invalid email"),
-  phone: z.string().min(1, "Phone number is required"),
+export const employeeSchema = z.object({
+  first_name: z.string().min(1, "First name is required"),
+  last_name: z.string().min(1, "Last name is required"),
+  middle_name: z.string().optional(),
+  phone: z.string().min(1, "Primary Phone is required"),
   phone2: z.string().optional(),
-  phone3: z.string().optional(),
-  status: z.string().default("active"),
+  email: z.email("Invalid email").min(1, "Email is required"),
+  gender: z.string().optional(),
+  dob: z.string(),
+  marital_status: z.string().optional(),
+  status: z.string(),
   address: addressSchema.optional(),
+  experience_years: z.number(),
 });
 
-export const companyFormFields: FormField[] = [
+export const employeeFormFields: FormField[] = [
   {
-    name: "name",
-    label: "Company Name",
+    name: "first_name",
+    label: "First Name",
     type: "text",
-    placeholder: "Enter company name",
+    placeholder: "Enter first name",
     required: true,
     gridCol: 2,
   },
   {
-    name: "display_name",
-    label: "Display Name",
+    name: "middle_name",
+    label: "Middle Name",
     type: "text",
-    placeholder: "Enter display name",
+    placeholder: "Enter Middle name",
     required: false,
+    gridCol: 2,
+  },
+  {
+    name: "last_name",
+    label: "Last Name",
+    type: "text",
+    placeholder: "Enter last name",
+    required: true,
     gridCol: 2,
   },
   {
@@ -80,12 +67,26 @@ export const companyFormFields: FormField[] = [
     gridCol: 2,
   },
   {
-    name: "phone3",
-    label: "Tertiary Phone",
-    type: "text",
-    placeholder: "Enter tertiary phone",
+    name: "dob",
+    label: "Date of Birth",
+    type: "date",
+    placeholder: "Enter date of birth",
     required: false,
     gridCol: 2,
+  },
+  {
+    name: "gender",
+    label: "Gender",
+    type: "select",
+    required: true,
+    default: "male",
+    gridCol: 2,
+    options: [
+      { label: "Male", value: "male" },
+      { label: "Female", value: "female" },
+      { label: "Others", value: "others" },
+      { label: "Unknown", value: "unknown" },
+    ],
   },
   {
     name: "status",
@@ -100,6 +101,41 @@ export const companyFormFields: FormField[] = [
       { label: "Inactive", value: "inactive" },
       { label: "Archived", value: "archived" },
     ],
+  },
+  {
+    name: "specialization",
+    label: "Specialization",
+    type: "text",
+    required: false,
+    gridCol: 2,
+  },
+  {
+    name: "license_no",
+    label: "License No",
+    type: "number",
+    required: false,
+    gridCol: 2,
+  },
+  {
+    name: "experience_years",
+    label: "Experience Years",
+    type: "text",
+    required: false,
+    gridCol: 2,
+  },
+  {
+    name: "qualification",
+    label: "Qualification",
+    type: "text",
+    required: false,
+    gridCol: 2,
+  },
+  {
+    name: "biography",
+    label: "Biography",
+    type: "textarea",
+    required: false,
+    gridCol: 2,
   },
   {
     name: "address.country",

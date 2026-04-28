@@ -19,6 +19,7 @@ import { useCompanyStore } from "./zustand/companyStore";
 import EmployeePage from "./modules/employee/EmployeePageList";
 import PatientPage from "./modules/patient/PatientPageList";
 import PatientProfilePage from "./modules/patient/PatientProfilePage";
+import EmployeeProfilePage from "./modules/employee/EmployeeProfilePage";
 
 const router = createBrowserRouter([
   {
@@ -82,6 +83,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <EmployeePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "employees/:id",
+        element: (
+          <ProtectedRoute>
+            <EmployeeProfilePage />
           </ProtectedRoute>
         ),
       },

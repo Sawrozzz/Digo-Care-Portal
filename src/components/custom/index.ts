@@ -8,3 +8,4 @@ export * from "./MainNav";
 export * from "./PageTransitionWrapper";
 export * from "./UserNav";
 export * from "./CustomTab";
+export * from "./AvatarUploadDialogue";

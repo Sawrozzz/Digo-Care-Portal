@@ -10,33 +10,30 @@ import {
   Contact,
   Building2,
   CalendarRange,
-  FileText,
-  Download,
-  Eye,
   User,
   Timer,
 } from "lucide-react";
-import { getAPatientsOfACompany } from "./patientApi";
+import { getAEmployeeOfACompany } from "./employeeApi";
 import { Loader } from "../../components/custom/Loader";
 import { Breadcrumb } from "../../components/custom/Breadcrumb";
 import { SiteHeader } from "../../components/ui/site-header";
-import { BASE_URL, parseSinglePatientData } from "../../utils";
-import type { Patient } from "../../utils";
+import { BASE_URL, parseSingleEmployeeData } from "../../utils";
+import type { Employee } from "../../utils";
 
 import { useCompanyStore } from "../../zustand/companyStore";
 import { CustomTab } from "../../components/custom";
 
-export default function PatientProfilePage() {
+export default function EmployeeProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { activeCompany } = useCompanyStore();
-  const [patient, setPatient] = useState<Patient | null>(null);
+  const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchPatient = async () => {
+    const fetchEmployee = async () => {
       if (!id) {
-        setError("Patient ID not found");
+        setError("Employee ID not found");
         setLoading(false);
         return;
       } else if (!activeCompany?.id) {
@@ -47,21 +44,21 @@ export default function PatientProfilePage() {
 
       try {
         setLoading(true);
-        const response = await getAPatientsOfACompany(
+        const response = await getAEmployeeOfACompany(
           Number(activeCompany?.id),
           Number(id)
         );
         if (response) {
-          setPatient(parseSinglePatientData(response));
+          setEmployee(parseSingleEmployeeData(response));
         }
       } catch (err: any) {
-        setError(err.message || "Failed to fetch patient details");
+        setError(err.message || "Failed to fetch employee details");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPatient();
+    fetchEmployee();
   }, [id, activeCompany?.id]);
 
   if (loading) {
@@ -72,18 +69,18 @@ export default function PatientProfilePage() {
     );
   }
 
-  if (error || !patient) {
+  if (error || !employee) {
     return (
       <div className="min-h-screen bg-white">
         {/* Site Header */}
-        <SiteHeader name="Patient Profile" />
+        <SiteHeader name="Employee Profile" />
 
         {/* Breadcrumb Navigation */}
         <div className="border-b border-gray-100">
           <div className="px-4 lg:px-6 py-3">
             <Breadcrumb
               items={[
-                { label: "Patients", path: "/patients" },
+                { label: "Employees", path: "/employees" },
                 { label: "Error" },
               ]}
             />
@@ -94,7 +91,7 @@ export default function PatientProfilePage() {
           <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <p className="text-red-700 font-semibold text-lg">
-              {error || "Patient not found"}
+              {error || "Employee not found"}
             </p>
           </div>
         </div>
@@ -102,10 +99,10 @@ export default function PatientProfilePage() {
     );
   }
 
-  const avatarUrl = patient.avatar?.url
-    ? patient.avatar.url.startsWith("http")
-      ? patient.avatar.url
-      : `${BASE_URL}${patient.avatar.url}`
+  const avatarUrl = employee.avatar?.url
+    ? employee.avatar.url.startsWith("http")
+      ? employee.avatar.url
+      : `${BASE_URL}${employee.avatar.url}`
     : null;
 
   const tabData = [
@@ -127,13 +124,10 @@ export default function PatientProfilePage() {
               <div>
                 <div className="flex items-center gap-2 text-gray-500 uppercase tracking-wider">
                   <User size={14} />
-                  <span className="text-[10px] font-bold">
-                    Gender | Material Status | Blood Group
-                  </span>
+                  <span className="text-[10px] font-bold">Gender</span>
                 </div>
                 <p className="text-sm text-gray-900 ml-6 mt-1">
-                  {patient?.gender} | {patient?.marital_status} |{" "}
-                  {patient?.blood_group}
+                  {employee?.gender}
                 </p>
               </div>
               <div>
@@ -142,7 +136,7 @@ export default function PatientProfilePage() {
                   <span className="text-[10px] font-bold">DOB</span>
                 </div>
                 <p className="text-sm text-gray-900 ml-6 mt-1">
-                  {patient?.dob}
+                  {employee?.dob}
                 </p>
               </div>
             </div>
@@ -160,7 +154,7 @@ export default function PatientProfilePage() {
                   <span className="text-[10px] font-bold">Email</span>
                 </div>
                 <p className="text-sm text-gray-900 ml-6 mt-1">
-                  {patient.email}
+                  {employee.email}
                 </p>
               </div>
               <div>
@@ -169,7 +163,7 @@ export default function PatientProfilePage() {
                   <span className="text-[10px] font-bold">Phone</span>
                 </div>
                 <div className="space-y-1 mt-1 ml-6">
-                  {[patient.phone, patient.phone2]
+                  {[employee.phone, employee.phone2]
                     .filter(Boolean)
                     .map((phone, i) => (
                       <p key={i} className="text-sm text-gray-900">
@@ -182,7 +176,7 @@ export default function PatientProfilePage() {
           </div>
 
           {/* Location Card */}
-          {patient.address && (
+          {employee.address && (
             <div className="bg-white border border-gray-100 rounded-lg p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-6">
                 <MapPin size={20} />
@@ -190,7 +184,7 @@ export default function PatientProfilePage() {
               </div>
 
               <div className="grid grid-cols-2 gap-y-4 gap-x-2">
-                {Object.entries(patient.address).map(([key, value]) => {
+                {Object.entries(employee.address).map(([key, value]) => {
                   if (!value || key === "id") return null;
 
                   if (key === "google_map") {
@@ -231,88 +225,14 @@ export default function PatientProfilePage() {
       ),
     },
     {
-      value: "x_rays",
-      label: "Medical X-Rays",
-      icon: <FileText size={16} />,
+      value: "your_patients",
+      label: "Your Patients",
+      icon: <CalendarRange size={16} />,
       content: (
-        <div className="bg-white border border-gray-100 rounded-lg  overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-            <h2 className="text-lg font-bold text-gray-900">X-Ray Images</h2>
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">
-              {patient?.x_rays?.length || 0} Files
-            </span>
-          </div>
-
-          <div className="divide-y divide-gray-50">
-            {patient?.x_rays && patient.x_rays.length > 0 ? (
-              patient.x_rays.map((doc) => {
-                const fullUrl = doc.url.startsWith("http")
-                  ? doc.url
-                  : `${BASE_URL}${doc.url}`;
-
-                return (
-                  <div
-                    key={doc.id}
-                    className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden shrink-0 cursor-zoom-in border border-gray-200 group relative"
-                        onClick={() => window.open(fullUrl, "_blank")} // Simple preview for now, or use a Modal
-                      >
-                        <img
-                          src={fullUrl}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                          alt="thumbnail"
-                        />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                          <Eye size={16} className="text-white" />
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {doc.name}
-                        </p>
-                        <p className="text-xs text-gray-500 uppercase tracking-tighter">
-                          {(doc.byte_size / 1024).toFixed(2)} KB •{" "}
-                          {new Date(doc.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {/* Download Button */}
-                      <a
-                        href={fullUrl}
-                        download={doc.name}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                        title="Download Image"
-                      >
-                        <Download size={18} />
-                      </a>
-
-                      {/* Full View Button */}
-                      <button
-                        onClick={() => window.open(fullUrl, "_blank")}
-                        className="px-3 py-1.5 text-xs font-bold bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-                      >
-                        View Full
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="p-12 text-center">
-                <p className="text-gray-400 text-sm italic">
-                  No medical X-Rays found for this patient.
-                </p>
-              </div>
-            )}
-          </div>
+        <div className="bg-white border border-gray-100 rounded-lg p-8 text-center">
+          <h3 className="text-gray-900 font-semibold">
+            List of your assigned patients
+          </h3>
         </div>
       ),
     },
@@ -332,15 +252,15 @@ export default function PatientProfilePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <SiteHeader name="Patient Profile" />
+      <SiteHeader name="Employee Profile" />
 
       {/* Breadcrumb Navigation */}
       <div className="border-b border-gray-100">
         <div className="px-4 lg:px-6 py-3">
           <Breadcrumb
             items={[
-              { label: "Patients", path: "/patients" },
-              { label: patient?.name || "" },
+              { label: "Employees", path: "/employees" },
+              { label: employee?.name || "" },
             ]}
           />
         </div>
@@ -355,7 +275,7 @@ export default function PatientProfilePage() {
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
-                  alt={patient.name}
+                  alt={employee.name}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -364,16 +284,16 @@ export default function PatientProfilePage() {
             </div>
             <div className="text-center sm:text-left flex-1">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                {patient.name}
+                {employee.name}
               </h1>
               <span
                 className={`mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  patient?.status === "active"
+                  employee?.status === "active"
                     ? "bg-green-100 text-green-700"
                     : "bg-gray-100 text-gray-700"
                 }`}
               >
-                {patient?.status}
+                {employee?.status}
               </span>
             </div>
           </div>
