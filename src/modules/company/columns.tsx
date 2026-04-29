@@ -10,9 +10,9 @@ import { deleteCompany, updateCompany } from "./companyApi";
 import { DeleteConfirmationDialog } from "../../components/custom";
 import { CustomButton } from "../../components/custom/Button";
 import { BASE_URL } from "../../utils";
-import { CreateAccountDialog } from "./CreateAccountDialog";
-import { RemoveAccountDialog } from "./RemoveAccountDialog";
+import { CreateCompanyAccountDialog } from "./CreateCompanyAccountDialog";
 import { AvatarUploadDialog } from "../../components/custom/AvatarUploadDialogue";
+import { RemoveCompanyAccountDialog } from "./RemoveCompanyAccountDialog";
 
 interface CompanyColumnsProps {
   onEdit: (company: Company) => void;
@@ -108,6 +108,67 @@ export const companyColumns = ({
     );
   };
 
+  const AccountCell = ({ row }: { row: any }) => {
+    const hasAcc = row.original.has_account;
+
+    const [openCreate, setOpenCreate] = useState(false);
+    const [openRemove, setOpenRemove] = useState(false); // ✅ add this
+
+    return (
+      <>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span
+              className={`h-2 w-2 rounded-full ${
+                hasAcc ? "bg-green-500" : "bg-gray-400"
+              }`}
+            />
+            <p className="text-xs text-gray-600">
+              {hasAcc ? "Account exists" : "No account"}
+            </p>
+          </div>
+          <div className="border-t w-42 border-gray-200" />
+
+          {!hasAcc ? (
+            <CustomButton
+              variantType="primary"
+              size="sm"
+              className="w-fit text-sm cursor-pointer"
+              onClick={() => setOpenCreate(true)}
+            >
+              Create Account
+            </CustomButton>
+          ) : (
+            <CustomButton
+              variantType="secondary"
+              size="sm"
+              className="w-fit text-sm cursor-pointer"
+              onClick={() => setOpenRemove(true)}
+            >
+              Remove Account
+            </CustomButton>
+          )}
+        </div>
+
+        {/* Create Dialog */}
+        <CreateCompanyAccountDialog
+          open={openCreate}
+          onClose={() => setOpenCreate(false)}
+          companyId={row.original.id}
+          onSuccess={reloadTable}
+        />
+
+        {/* Remove Dialog */}
+        <RemoveCompanyAccountDialog
+          open={openRemove}
+          onOpenChange={setOpenRemove}
+          companyId={row.original.id}
+          onSuccess={reloadTable}
+        />
+      </>
+    );
+  };
+
   return [
     {
       accessorKey: "id",
@@ -172,65 +233,7 @@ export const companyColumns = ({
     {
       accessorKey: "has_account",
       header: "Account",
-      cell: ({ row }) => {
-        const hasAcc = row.original.has_account;
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const [createAccountOpen, setCreateAccountOpen] = useState(false);
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const [removeAccountOpen, setRemoveAccountOpen] = useState(false);
-
-        return (
-          <>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`h-2 w-2 rounded-full ${
-                    hasAcc ? "bg-green-500" : "bg-gray-400"
-                  }`}
-                />
-                <p className="text-xs text-gray-600">
-                  {hasAcc ? "Account exists" : "No account"}
-                </p>
-              </div>
-              <div className="border-t w-42 border-gray-200" />
-
-              {hasAcc ? (
-                <CustomButton
-                  variantType="secondary"
-                  size="sm"
-                  onClick={() => setRemoveAccountOpen(true)}
-                  className="w-fit text-sm cursor-pointer"
-                >
-                  Remove Account
-                </CustomButton>
-              ) : (
-                <CustomButton
-                  variantType="primary"
-                  size="sm"
-                  onClick={() => setCreateAccountOpen(true)}
-                  className="w-fit text-sm cursor-pointer"
-                >
-                  Create Account
-                </CustomButton>
-              )}
-            </div>
-
-            <CreateAccountDialog
-              open={createAccountOpen}
-              onOpenChange={setCreateAccountOpen}
-              companyId={row.original.id}
-              onSuccess={reloadTable}
-            />
-
-            <RemoveAccountDialog
-              open={removeAccountOpen}
-              onOpenChange={setRemoveAccountOpen}
-              companyId={row.original.id}
-              onSuccess={reloadTable}
-            />
-          </>
-        );
-      },
+      cell: AccountCell,
     },
     {
       accessorKey: "status",
