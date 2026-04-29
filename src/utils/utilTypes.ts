@@ -81,6 +81,30 @@ export type Patient = {
   created_at?: Date;
   updated_at?: Date;
 };
+export type Employee = {
+  id: number;
+  first_name: string;
+  middle_name?: string;
+  name?: string;
+  last_name: string;
+  phone: string;
+  phone2?: string;
+  email: string;
+  gender?: string;
+  dob?: string;
+  status: string;
+  has_account?: boolean;
+  specialization?: string;
+  license_no?: string;
+  experience_years?: number;
+  biographyqualification?: string;
+  qualification?: string;
+  biography?: string;
+  avatar?: Avatar;
+  address?: Address;
+  created_at?: Date;
+  updated_at?: Date;
+};
 
 export const roleData: any = {
   admin: "Admin",

@@ -1,17 +1,21 @@
+import { Loader } from "../../components/custom";
 import { SiteHeader } from "../../components/ui/site-header";
-import { useAuthStore } from "../../zustand/authStore";
 import { useCompanyStore } from "../../zustand/companyStore";
+import EmployeeTable from "./EmployeeTable";
 
 export default function EmployeePage() {
-  const { activeCompany } = useCompanyStore();
-  const { account } = useAuthStore();
+  const { activeCompany, loading } = useCompanyStore();
+  if (loading) {
+    return <Loader size={72} />;
+  }
   return (
     <>
-      <SiteHeader name="Employee" />
-      <p className="p-6">
-        This is Employee Page of Company:{" "}
-        {account?.company_id || activeCompany?.id}
-      </p>
+      <SiteHeader name="Patient" />
+      {activeCompany?.id ? (
+        <EmployeeTable companyId={activeCompany.id} />
+      ) : (
+        <p>No Patients available</p>
+      )}
     </>
   );
 }

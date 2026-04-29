@@ -3,28 +3,27 @@ import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "../../components/ui/badge";
 
-import type { Patient } from "../../utils";
+import type { Employee } from "../../utils";
 
-import { Pencil, Trash2Icon, Copy, Check } from "lucide-react";
-import { deletePatient, updatePatient } from "./patientApi";
+import { Pencil, Trash2Icon } from "lucide-react";
+import { deleteEmployee, updateEmployee } from "./employeeApi";
 import { DeleteConfirmationDialog } from "../../components/custom";
-// import { CustomButton } from "../../components/custom/Button";
 import { BASE_URL } from "../../utils";
 
 import { useCompanyStore } from "../../zustand/companyStore";
-import { AvatarUploadDialog } from "../../components/custom/AvatarUploadDialogue";
+import { AvatarUploadDialog } from "../../components/custom";
 
-interface PatientColumnsProps {
-  onEdit: (patient: Patient) => void;
+interface EmployeeColumnsProps {
+  onEdit: (employee: Employee) => void;
   reloadTable: () => Promise<void>;
-  onRowClick?: (patient: Patient) => void;
+  onRowClick?: (employee: Employee) => void;
 }
 
-export const patientColumns = ({
+export const employeeColumns = ({
   onEdit,
   reloadTable,
   onRowClick,
-}: PatientColumnsProps): ColumnDef<Patient>[] => {
+}: EmployeeColumnsProps): ColumnDef<Employee>[] => {
   const DeleteActionCell = ({ row }: { row: any }) => {
     const { activeCompany } = useCompanyStore();
     const [deleteOpen, setDeleteOpen] = useState(false);
@@ -49,7 +48,7 @@ export const patientColumns = ({
           onOpenChange={setDeleteOpen}
           itemName={name}
           onConfirm={() =>
-            deletePatient(Number(activeCompany?.id), row.original.id)
+            deleteEmployee(Number(activeCompany?.id), row.original.id)
           }
           reloadTable={reloadTable}
         />
@@ -62,7 +61,6 @@ export const patientColumns = ({
 
     const firstName = row.original.first_name;
     const lastName = row.original.last_name;
-    // const middleName = row.original?.middle_name;
 
     const name = `${firstName}, ${lastName}`;
     const email = row.original.email;
@@ -107,11 +105,11 @@ export const patientColumns = ({
         <AvatarUploadDialog
           open={avatarUploadOpen}
           onOpenChange={setAvatarUploadOpen}
-          title="Upload Patient  Avatar"
+          title="Upload Employee Avatar"
           fieldName="avatar"
           onUpload={async (formData) => {
             const file = formData.get("avatar") as File;
-            await updatePatient(Number(activeCompany?.id), row.original.id, {
+            await updateEmployee(Number(activeCompany?.id), row.original.id, {
               avatar: file,
             });
           }}
@@ -121,57 +119,16 @@ export const patientColumns = ({
     );
   };
 
-  const PatientIdCell = ({ row }: { row: any }) => {
-    const [copied, setCopied] = useState(false);
-    const id = row.original.patient_id;
-
-    const handleCopy = async () => {
-      await navigator.clipboard.writeText(id);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    };
-
-    return (
-      <div className="relative inline-block">
-        <button
-          onClick={handleCopy}
-          title="Click to Copy"
-          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition cursor-pointer"
-        >
-          <span>{id}</span>
-
-          <span className="opacity-0 group-hover:opacity-100 transition">
-            {copied ? (
-              <Check size={12} className="text-green-600" />
-            ) : (
-              <Copy size={12} />
-            )}
-          </span>
-        </button>
-        {copied && (
-          <span className="absolute -top-6 -right-6 -translate-x-1/2 text-[10px] px-2 py-0.5 rounded text-white bg-gray-400 shadow-sm animate-fade-in">
-            Copied
-          </span>
-        )}
-      </div>
-    );
-  };
-
   return [
     {
       accessorKey: "id",
       header: "ID",
-      cell: ({ row }) => <p>{`P-#${row.original.id}`}</p>,
+      cell: ({ row }) => <p>{`E-#${row.original.id}`}</p>,
     },
     {
       accessorKey: "name",
       header: "Name",
       cell: NameCell,
-    },
-    {
-      accessorKey: "patient_id",
-      header: "PATIENT ID",
-      cell: PatientIdCell,
     },
     {
       accessorKey: "phone",

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from "dayjs";
-import type { Company, Patient } from "./utilTypes";
+import type { Company, Employee, Patient } from "./utilTypes";
 
 export const toFormData = (obj: any, form = new FormData(), parentKey = "") => {
   Object.entries(obj).forEach(([key, value]) => {
@@ -295,6 +295,89 @@ export const parseSinglePatientData = (response: any): any | null => {
     avatar: attr.avatar,
     x_rays: attr.x_rays || [],
     documents: attr.documents || [],
+    address: attr.address,
+    created_at: toDateFormat(attr?.created_at).toDate(),
+    updated_at: toDateFormat(attr.updated_at).toDate(),
+  };
+};
+
+export const parseEmployeeResponse = (response: any): Employee[] => {
+  const data = response.data;
+
+  if (!data || !Array.isArray(data)) return [];
+
+  return data.map((item: any) => {
+    const attr = item.attributes;
+
+    return {
+      id: attr.id,
+      first_name: attr.first_name,
+      middle_name: attr.middle_name,
+      last_name: attr.last_name,
+      phone: attr.phone,
+      phone2: attr.phone2,
+      email: attr.email,
+      gender: attr.gender,
+      dob: attr.dob,
+      status: attr.status,
+      has_account: attr.has_account,
+      specialization: attr.specialization,
+      qualification: attr.qualification,
+      license_no: attr.license_no,
+      experience_years: attr.experience_years,
+      biography: attr.biography,
+      avatar: attr.avatar,
+
+      address: attr.address
+        ? {
+            id: attr.address.id,
+            country: attr.address.country,
+            province: attr.address.province,
+            district: attr.address.district,
+            municipality: attr.address.municipality,
+            ward_no: attr.address.ward_no
+              ? Number(attr.address.ward_no)
+              : undefined,
+            google_map: attr.address.google_map,
+          }
+        : undefined,
+
+      created_at: attr.created_at
+        ? toDateFormat(attr.created_at).toDate()
+        : undefined,
+      updated_at: attr.updated_at
+        ? toDateFormat(attr.updated_at).toDate()
+        : undefined,
+    };
+  });
+};
+
+export const parseSingleEmployeeData = (response: any): any | null => {
+  const data = response?.data;
+
+  if (!data) return null;
+  const attr = data.attributes;
+  if (!attr) return null;
+
+  return {
+    id: attr.id,
+    name: `${attr.first_name || ""} ${attr.last_name || ""}`.trim(),
+    first_name: attr.first_name,
+    middle_name: attr.middle_name,
+    last_name: attr.last_name,
+    phone: attr.phone,
+    phone2: attr.phone2,
+    email: attr.email,
+    gender: attr.gender,
+    dob: attr.dob,
+    status: attr.status,
+    specialization: attr.specialization,
+    qualification: attr.qualification,
+    license_no: attr.license_no,
+    experience_years: attr.experience_years,
+    biography: attr.biography,
+    has_account: attr.has_account,
+    avatar: attr.avatar,
     address: attr.address,
     created_at: toDateFormat(attr?.created_at).toDate(),
     updated_at: toDateFormat(attr.updated_at).toDate(),
