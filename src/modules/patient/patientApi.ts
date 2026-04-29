@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getFromApi, postToApi, updateToApi, deleteFromApi } from "../../utils";
+import {
+  getFromApi,
+  postToApi,
+  updateToApi,
+  deleteFromApi,
+  passwordSchema,
+} from "../../utils";
 import type { Patient } from "../../utils";
+import type { CreatePatientAccountInput } from "./patientAttributes";
 
 const formatPatientData = (data: any): Patient => {
   const formatted = { ...data };
@@ -60,4 +67,31 @@ export const updatePatient = (companyId: number, id: number, data: any) => {
 
 export const deletePatient = (companyId: number, id: number) => {
   return deleteFromApi(`/companies/${companyId}/patients/${id}`);
+};
+
+export const createPatientAccount = async (
+  companyId: number,
+  patientId: number,
+  data: CreatePatientAccountInput
+) => {
+  // Validate input with Zod schema
+  const validatedData = passwordSchema.parse(data);
+
+  const response = await postToApi(
+    `/companies/${companyId}/patients/create_patient_account/${patientId}`,
+    {
+      account: {
+        password: validatedData.password,
+        password_confirmation: validatedData.password_confirmation,
+      },
+    }
+  );
+
+  return response;
+};
+
+export const removePatientAccount = (companyId: number, patientId: number) => {
+  return deleteFromApi(
+    `/companies/${companyId}/patients/${patientId}/remove_account/`
+  );
 };

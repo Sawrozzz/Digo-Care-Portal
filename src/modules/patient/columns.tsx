@@ -7,12 +7,16 @@ import type { Patient } from "../../utils";
 
 import { Pencil, Trash2Icon, Copy, Check } from "lucide-react";
 import { deletePatient, updatePatient } from "./patientApi";
-import { DeleteConfirmationDialog } from "../../components/custom";
-// import { CustomButton } from "../../components/custom/Button";
+import {
+  CustomButton,
+  DeleteConfirmationDialog,
+} from "../../components/custom";
 import { BASE_URL } from "../../utils";
 
 import { useCompanyStore } from "../../zustand/companyStore";
 import { AvatarUploadDialog } from "../../components/custom/AvatarUploadDialogue";
+import { CreatePatientAccountDialog } from "./CreatePatientAccountDialog";
+import { RemovePatientAccountDialog } from "./RemovePatientAccountDialog";
 
 interface PatientColumnsProps {
   onEdit: (patient: Patient) => void;
@@ -157,6 +161,71 @@ export const patientColumns = ({
     );
   };
 
+  const AccountCell = ({ row }: { row: any }) => {
+    const { activeCompany } = useCompanyStore();
+
+    const hasAcc = row.original.has_account;
+
+    const [openCreate, setOpenCreate] = useState(false);
+    const [openRemove, setOpenRemove] = useState(false); // ✅ add this
+
+    return (
+      <>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span
+              className={`h-2 w-2 rounded-full ${
+                hasAcc ? "bg-green-500" : "bg-gray-400"
+              }`}
+            />
+            <p className="text-xs text-gray-600">
+              {hasAcc ? "Account exists" : "No account"}
+            </p>
+          </div>
+          <div className="border-t w-42 border-gray-200" />
+
+          {!hasAcc ? (
+            <CustomButton
+              variantType="primary"
+              size="sm"
+              className="w-fit text-sm cursor-pointer"
+              onClick={() => setOpenCreate(true)}
+            >
+              Create Account
+            </CustomButton>
+          ) : (
+            <CustomButton
+              variantType="secondary"
+              size="sm"
+              className="w-fit text-sm cursor-pointer"
+              onClick={() => setOpenRemove(true)}
+            >
+              Remove Account
+            </CustomButton>
+          )}
+        </div>
+
+        {/* Create Dialog */}
+        <CreatePatientAccountDialog
+          open={openCreate}
+          onClose={() => setOpenCreate(false)}
+          patientId={row.original.id}
+          companyId={Number(activeCompany?.id)}
+          onSuccess={reloadTable}
+        />
+
+        {/* Remove Dialog */}
+        <RemovePatientAccountDialog
+          open={openRemove}
+          onOpenChange={setOpenRemove}
+          patientId={row.original.id}
+          companyId={Number(activeCompany?.id)}
+          onSuccess={reloadTable}
+        />
+      </>
+    );
+  };
+
   return [
     {
       accessorKey: "id",
@@ -209,6 +278,11 @@ export const patientColumns = ({
           </div>
         );
       },
+    },
+    {
+      accessorKey: "has_account",
+      header: "Account",
+      cell: AccountCell,
     },
     {
       accessorKey: "status",

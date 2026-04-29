@@ -1,6 +1,6 @@
 import z from "zod";
 import type { FormField } from "../../components/custom";
-import { addressSchema } from "../../utils";
+import { addressSchema, passwordSchema } from "../../utils";
 
 export const patientSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -15,6 +15,8 @@ export const patientSchema = z.object({
   status: z.string(),
   address: addressSchema.optional(),
 });
+
+export type CreatePatientAccountInput = z.infer<typeof passwordSchema>;
 
 export const patientFormFields: FormField[] = [
   {

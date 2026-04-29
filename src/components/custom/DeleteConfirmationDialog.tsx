@@ -32,11 +32,11 @@ export function DeleteConfirmationDialog({
     setLoading(true);
     try {
       await onConfirm();
-      toast.success(`${itemName} deleted successfully!`);
+      toast.success(`${itemName.toUpperCase()} deleted successfully!`);
       onOpenChange(false);
       await reloadTable();
     } catch (error: any) {
-      toast.error(`✗ Error: ${error.message || "Failed to delete item"}`);
+      toast.error(` Error: ${error.message || "Failed to delete item"}`);
     } finally {
       setLoading(false);
     }
