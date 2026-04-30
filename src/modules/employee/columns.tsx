@@ -7,11 +7,16 @@ import type { Employee } from "../../utils";
 
 import { Pencil, Trash2Icon } from "lucide-react";
 import { deleteEmployee, updateEmployee } from "./employeeApi";
-import { DeleteConfirmationDialog } from "../../components/custom";
+import {
+  CustomButton,
+  DeleteConfirmationDialog,
+} from "../../components/custom";
 import { BASE_URL } from "../../utils";
 
 import { useCompanyStore } from "../../zustand/companyStore";
 import { AvatarUploadDialog } from "../../components/custom";
+import { CreateEmployeeAccountDialog } from "./CreateEmployeeAccountDialog";
+import { RemoveEmployeeAccountDialog } from "./RemoveEmployeeAccountDialog";
 
 interface EmployeeColumnsProps {
   onEdit: (employee: Employee) => void;
@@ -119,6 +124,69 @@ export const employeeColumns = ({
     );
   };
 
+  const AccountCell = ({ row }: { row: any }) => {
+    const { activeCompany } = useCompanyStore();
+
+    const hasAcc = row.original.has_account;
+
+    const [openCreate, setOpenCreate] = useState(false);
+    const [openRemove, setOpenRemove] = useState(false);
+
+    return (
+      <>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span
+              className={`h-2 w-2 rounded-full ${
+                hasAcc ? "bg-green-500" : "bg-gray-400"
+              }`}
+            />
+            <p className="text-xs text-gray-600">
+              {hasAcc ? "Account exists" : "No account"}
+            </p>
+          </div>
+          <div className="border-t w-42 border-gray-200" />
+
+          {!hasAcc ? (
+            <CustomButton
+              variantType="primary"
+              size="sm"
+              className="w-fit text-sm cursor-pointer"
+              onClick={() => setOpenCreate(true)}
+            >
+              Create Account
+            </CustomButton>
+          ) : (
+            <CustomButton
+              variantType="secondary"
+              size="sm"
+              className="w-fit text-sm cursor-pointer"
+              onClick={() => setOpenRemove(true)}
+            >
+              Remove Account
+            </CustomButton>
+          )}
+        </div>
+
+        <CreateEmployeeAccountDialog
+          open={openCreate}
+          onClose={() => setOpenCreate(false)}
+          employeeId={row.original.id}
+          companyId={Number(activeCompany?.id)}
+          onSuccess={reloadTable}
+        />
+
+        <RemoveEmployeeAccountDialog
+          open={openRemove}
+          onOpenChange={setOpenRemove}
+          employeeId={row.original.id}
+          companyId={Number(activeCompany?.id)}
+          onSuccess={reloadTable}
+        />
+      </>
+    );
+  };
+
   return [
     {
       accessorKey: "id",
@@ -166,6 +234,11 @@ export const employeeColumns = ({
           </div>
         );
       },
+    },
+    {
+      accessorKey: "has_account",
+      header: "Account",
+      cell: AccountCell,
     },
     {
       accessorKey: "status",
