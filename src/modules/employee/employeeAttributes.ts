@@ -1,6 +1,6 @@
 import z from "zod";
 import type { FormField } from "../../components/custom";
-import { addressSchema } from "../../utils";
+import { addressSchema, passwordSchema } from "../../utils";
 
 export const employeeSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -16,6 +16,8 @@ export const employeeSchema = z.object({
   address: addressSchema.optional(),
   experience_years: z.number(),
 });
+
+export type CreateEmployeeAccountInput = z.infer<typeof passwordSchema>;
 
 export const employeeFormFields: FormField[] = [
   {

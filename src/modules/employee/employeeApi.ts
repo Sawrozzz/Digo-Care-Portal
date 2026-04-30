@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getFromApi, postToApi, updateToApi, deleteFromApi } from "../../utils";
+import {
+  getFromApi,
+  postToApi,
+  updateToApi,
+  deleteFromApi,
+  passwordSchema,
+} from "../../utils";
 import type { Employee } from "../../utils";
+import type { CreateEmployeeAccountInput } from "./employeeAttributes";
 
 const formatEmployeeData = (data: any): Employee => {
   const formatted = { ...data };
@@ -60,4 +67,34 @@ export const updateEmployee = (companyId: number, id: number, data: any) => {
 
 export const deleteEmployee = (companyId: number, id: number) => {
   return deleteFromApi(`/companies/${companyId}/employees/${id}`);
+};
+
+export const createEmployeeAccount = async (
+  companyId: number,
+  employeeId: number,
+  data: CreateEmployeeAccountInput
+) => {
+  // Validate input with Zod schema
+  const validatedData = passwordSchema.parse(data);
+
+  const response = await postToApi(
+    `/companies/${companyId}/employees/create_employee_account/${employeeId}`,
+    {
+      account: {
+        password: validatedData.password,
+        password_confirmation: validatedData.password_confirmation,
+      },
+    }
+  );
+
+  return response;
+};
+
+export const removeEmployeeAccount = (
+  companyId: number,
+  employeeId: number
+) => {
+  return deleteFromApi(
+    `/companies/${companyId}/employees/${employeeId}/remove_account`
+  );
 };
