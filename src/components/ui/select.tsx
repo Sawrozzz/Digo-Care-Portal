@@ -81,8 +81,11 @@ function SelectContent({
         <SelectPrimitive.Viewport
           data-position={position}
           className={cn(
-            "data-[position=popper]:h-(--radix-select-trigger-height) data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)",
-            position === "popper" && ""
+            "p-1",
+            // NOTE: this must be min-h, not h. `h-(--radix-select-trigger-height)`
+            // pins the viewport to exactly one row, so the list renders every
+            // option but only ever shows the first one.
+            "data-[position=popper]:min-h-(--radix-select-trigger-height) data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)"
           )}
         >
           {children}

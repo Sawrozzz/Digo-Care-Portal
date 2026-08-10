@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from "dayjs";
-import type { Company, Employee, Patient } from "./utilTypes";
+import type {
+  Company,
+  Employee,
+  Patient,
+  PatientAssignment,
+} from "./utilTypes";
 
 export const toFormData = (obj: any, form = new FormData(), parentKey = "") => {
   Object.entries(obj).forEach(([key, value]) => {
@@ -382,4 +387,64 @@ export const parseSingleEmployeeData = (response: any): any | null => {
     created_at: toDateFormat(attr?.created_at).toDate(),
     updated_at: toDateFormat(attr.updated_at).toDate(),
   };
+};
+
+export const parsePatientAssignmentResponse = (
+  response: any
+): PatientAssignment[] => {
+  const data = response?.data;
+
+  if (!data || !Array.isArray(data)) return [];
+
+  return data.map((item: any) => {
+    const attr = item.attributes;
+
+    const employee = attr.employee
+      ? {
+          id: attr.employee.id,
+          first_name: attr.employee.first_name,
+          middle_name: attr.employee.middle_name,
+          last_name: attr.employee.last_name,
+          phone: attr.employee.phone,
+          email: attr.employee.email,
+          status: attr.employee.status,
+        }
+      : ({} as Employee);
+
+    const patient = attr.patient
+      ? {
+          id: attr.patient.id,
+          patient_id: attr.patient.patient_id,
+          first_name: attr.patient.first_name,
+          middle_name: attr.patient.middle_name,
+          last_name: attr.patient.last_name,
+          phone: attr.patient.phone,
+          email: attr.patient.email,
+          status: attr.patient.status,
+        }
+      : ({} as Patient);
+
+    return {
+      id: attr.id,
+      status: attr.status,
+      started_at: attr.started_at,
+      ended_at: attr.ended_at ?? null,
+      notes: attr.notes,
+      priority: attr.priority,
+      reason: attr.reason,
+      assignment_method: attr.assignment_method,
+      room_number: attr.room_number,
+      discharge_date: attr.discharge_date ?? null,
+      discharge_reason: attr.discharge_reason,
+      department: attr.department,
+      employee,
+      patient,
+      patient_name: `${patient.first_name ?? ""} ${
+        patient.last_name ?? ""
+      }`.trim(),
+      employee_name: `${employee.first_name ?? ""} ${
+        employee.last_name ?? ""
+      }`.trim(),
+    } as PatientAssignment & { patient_name?: string; employee_name?: string };
+  });
 };

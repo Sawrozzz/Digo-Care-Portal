@@ -39,6 +39,11 @@ interface GenericDataTableProps<TData, TValue> {
   searchKey: string;
   onAddData?: () => void;
   placeholder?: string;
+  /**
+   * Optional extra controls (filters, switchers, ...) rendered in the top bar
+   * next to the search box. Omit it and the top bar looks exactly as before.
+   */
+  toolbar?: React.ReactNode;
 }
 
 export function DegoTable<TData, TValue>({
@@ -47,6 +52,7 @@ export function DegoTable<TData, TValue>({
   searchKey,
   onAddData,
   placeholder = "Search...",
+  toolbar,
 }: GenericDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -78,18 +84,19 @@ export function DegoTable<TData, TValue>({
   return (
     <div className="w-full space-y-4 pt-4">
       {/* Top bar */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
-          <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder={placeholder}
-            value={
-              (table.getColumn(searchKey)?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn(searchKey)?.setFilterValue(event.target.value)
-            }
-            className="
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative w-full max-w-md">
+            <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder={placeholder}
+              value={
+                (table.getColumn(searchKey)?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table.getColumn(searchKey)?.setFilterValue(event.target.value)
+              }
+              className="
               pl-10 h-10
               bg-white
               border border-gray-200
@@ -99,7 +106,10 @@ export function DegoTable<TData, TValue>({
               transition-all
               text-sm
             "
-          />
+            />
+          </div>
+
+          {toolbar && <div className="flex items-center gap-2">{toolbar}</div>}
         </div>
 
         <CustomButton

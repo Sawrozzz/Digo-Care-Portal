@@ -106,6 +106,23 @@ export type Employee = {
   updated_at?: Date;
 };
 
+export type PatientAssignment = {
+  id: number;
+  status: string;
+  started_at: Date | string;
+  ended_at?: Date | string | null;
+  notes?: string;
+  priority?: string;
+  reason?: string;
+  assignment_method?: string;
+  room_number?: string;
+  discharge_date?: Date | string | null ;
+  discharge_reason?:string
+  department?: string;
+  employee: Employee;
+  patient: Patient;
+};
+
 export const roleData: any = {
   admin: "Admin",
   super_admin: "Super Admin",

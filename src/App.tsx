@@ -20,6 +20,7 @@ import EmployeePage from "./modules/employee/EmployeePageList";
 import PatientPage from "./modules/patient/PatientPageList";
 import PatientProfilePage from "./modules/patient/PatientProfilePage";
 import EmployeeProfilePage from "./modules/employee/EmployeeProfilePage";
+import PatientAssignmentPage from "./modules/patientAssignment/PatientAssignmentList";
 
 const router = createBrowserRouter([
   {
@@ -94,6 +95,14 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "patient-assignments",
+        element: (
+          <ProtectedRoute>
+            <PatientAssignmentPage />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
   {
@@ -107,8 +116,15 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  const { token, fetchCurrentUser, account } = useAuthStore();
-  const { initializeCompanies } = useCompanyStore();
+  // atomic selectors: App renders the whole router tree, so subscribing to the
+  // full store snapshot would re-render every page on any unrelated store write
+  const token = useAuthStore((state) => state.token);
+  const fetchCurrentUser = useAuthStore((state) => state.fetchCurrentUser);
+  const accountId = useAuthStore((state) => state.account?.id);
+  const accountRole = useAuthStore((state) => state.account?.role);
+  const initializeCompanies = useCompanyStore(
+    (state) => state.initializeCompanies
+  );
 
   useEffect(() => {
     if (token) {
@@ -117,10 +133,10 @@ export default function App() {
   }, [token, fetchCurrentUser]);
 
   useEffect(() => {
-    if (account) {
-      initializeCompanies(account.role, account.id);
+    if (accountRole) {
+      initializeCompanies(accountRole, accountId);
     }
-  }, [account, initializeCompanies]);
+  }, [accountRole, accountId, initializeCompanies]);
 
   return <RouterProvider router={router} />;
 }

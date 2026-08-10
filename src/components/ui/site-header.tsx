@@ -13,7 +13,7 @@ export function SiteHeader({ name }: SiteHeaderProps) {
 
   const handleRefresh = () => {
     setLoading(true);
-
+ window.location.reload()
     setTimeout(() => {
       setLoading(false);
     }, 3000);
