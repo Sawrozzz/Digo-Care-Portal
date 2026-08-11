@@ -16,6 +16,27 @@ export const toFormData = (obj: any, form = new FormData(), parentKey = "") => {
       return;
     }
 
+    // Arrays go out as `field[]` repeated, which is what Rails needs to parse
+    // them as an Array. Indexing them (`field[0]`) would arrive as a Hash and
+    // be rejected by a `permit(field: [])` strong-params rule.
+    if (Array.isArray(value)) {
+      value.forEach((item) => {
+        if (item instanceof File || item instanceof Blob) {
+          form.append(`${fullKey}[]`, item);
+          return;
+        }
+
+        if (item && typeof item === "object" && !(item instanceof Date)) {
+          return toFormData(item, form, `${fullKey}[]`);
+        }
+
+        if (item !== undefined && item !== null) {
+          form.append(`${fullKey}[]`, item as any);
+        }
+      });
+      return;
+    }
+
     if (value && typeof value === "object" && !(value instanceof Date)) {
       return toFormData(value, form, fullKey);
     }

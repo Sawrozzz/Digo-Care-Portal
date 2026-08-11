@@ -16,22 +16,23 @@ type Avatar = {
   url: string;
 };
 
-type Document = {
+export type Attachment = {
   id: number;
+  /**
+   * ActiveStorage blob signed id. Assigning to a `has_many_attached` replaces
+   * the whole collection, so every add/remove has to re-send the survivors by
+   * signed id — see `replacePatientXRays`.
+   */
+  signed_id: string;
   name: string;
   byte_size: number;
   content_type: string;
   url: string;
   created_at: string;
 };
-type X_Ray = {
-  id: number;
-  name: string;
-  byte_size: number;
-  content_type: string;
-  url: string;
-  created_at: string;
-};
+
+type Document = Attachment;
+type X_Ray = Attachment;
 
 export type Account = {
   id: number;
@@ -116,8 +117,8 @@ export type PatientAssignment = {
   reason?: string;
   assignment_method?: string;
   room_number?: string;
-  discharge_date?: Date | string | null ;
-  discharge_reason?:string
+  discharge_date?: Date | string | null;
+  discharge_reason?: string;
   department?: string;
   employee: Employee;
   patient: Patient;

@@ -23,6 +23,7 @@
     "dayjs": "^1.11.20",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.574.0",
+    "nepali-date-converter": "^3.4.0",
     "radix-ui": "^1.4.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

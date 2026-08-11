@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   User2Icon,
@@ -11,8 +11,6 @@ import {
   Building2,
   CalendarRange,
   FileText,
-  Download,
-  Eye,
   User,
   Timer,
 } from "lucide-react";
@@ -25,6 +23,7 @@ import type { Patient } from "../../utils";
 
 import { useCompanyStore } from "../../zustand/companyStore";
 import { CustomTab } from "../../components/custom";
+import { PatientXRaysTab } from "./PatientXRaysTab";
 
 export default function PatientProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -33,8 +32,12 @@ export default function PatientProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchPatient = async () => {
+  /**
+   * `silent` refetches keep the page rendered — used after an X-ray upload or
+   * delete, where dropping back to the full-page loader would be jarring.
+   */
+  const loadPatient = useCallback(
+    async (silent = false) => {
       if (!id) {
         setError("Patient ID not found");
         setLoading(false);
@@ -46,7 +49,7 @@ export default function PatientProfilePage() {
       }
 
       try {
-        setLoading(true);
+        if (!silent) setLoading(true);
         const response = await getAPatientsOfACompany(
           Number(activeCompany?.id),
           Number(id)
@@ -57,12 +60,17 @@ export default function PatientProfilePage() {
       } catch (err: any) {
         setError(err.message || "Failed to fetch patient details");
       } finally {
-        setLoading(false);
+        if (!silent) setLoading(false);
       }
-    };
+    },
+    [id, activeCompany?.id]
+  );
 
-    fetchPatient();
-  }, [id, activeCompany?.id]);
+  useEffect(() => {
+    loadPatient();
+  }, [loadPatient]);
+
+  const refreshPatient = useCallback(() => loadPatient(true), [loadPatient]);
 
   if (loading) {
     return (
@@ -235,85 +243,12 @@ export default function PatientProfilePage() {
       label: "Medical X-Rays",
       icon: <FileText size={16} />,
       content: (
-        <div className="bg-white border border-gray-100 rounded-lg  overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-            <h2 className="text-lg font-bold text-gray-900">X-Ray Images</h2>
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">
-              {patient?.x_rays?.length || 0} Files
-            </span>
-          </div>
-
-          <div className="divide-y divide-gray-50">
-            {patient?.x_rays && patient.x_rays.length > 0 ? (
-              patient.x_rays.map((doc) => {
-                const fullUrl = doc.url.startsWith("http")
-                  ? doc.url
-                  : `${BASE_URL}${doc.url}`;
-
-                return (
-                  <div
-                    key={doc.id}
-                    className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden shrink-0 cursor-zoom-in border border-gray-200 group relative"
-                        onClick={() => window.open(fullUrl, "_blank")} // Simple preview for now, or use a Modal
-                      >
-                        <img
-                          src={fullUrl}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                          alt="thumbnail"
-                        />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                          <Eye size={16} className="text-white" />
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {doc.name}
-                        </p>
-                        <p className="text-xs text-gray-500 uppercase tracking-tighter">
-                          {(doc.byte_size / 1024).toFixed(2)} KB •{" "}
-                          {new Date(doc.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {/* Download Button */}
-                      <a
-                        href={fullUrl}
-                        download={doc.name}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                        title="Download Image"
-                      >
-                        <Download size={18} />
-                      </a>
-
-                      {/* Full View Button */}
-                      <button
-                        onClick={() => window.open(fullUrl, "_blank")}
-                        className="px-3 py-1.5 text-xs font-bold bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-                      >
-                        View Full
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="p-12 text-center">
-                <p className="text-gray-400 text-sm italic">
-                  No medical X-Rays found for this patient.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+        <PatientXRaysTab
+          companyId={Number(activeCompany?.id)}
+          patientId={Number(id)}
+          xRays={patient.x_rays ?? []}
+          onChanged={refreshPatient}
+        />
       ),
     },
     {

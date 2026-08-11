@@ -69,6 +69,47 @@ export const deletePatient = (companyId: number, id: number) => {
   return deleteFromApi(`/companies/${companyId}/patients/${id}`);
 };
 
+/**
+ * Sets the patient's X-ray collection to exactly `attachables`.
+ *
+ * `has_many_attached :x_rays` replaces on assign (Rails 7.1+), so this is the
+ * one primitive both "add" and "remove" are built from: the caller passes the
+ * signed ids of every X-ray that should survive, plus any new `File`s. Anything
+ * left out is purged by the backend.
+ */
+export const replacePatientXRays = (
+  companyId: number,
+  id: number,
+  attachables: (string | File)[]
+) => {
+  return updateToApi(`/companies/${companyId}/patients/${id}`, {
+    patient: {
+      // an empty collection still has to reach Rails, and an empty array
+      // serialises to nothing — [""] is the documented way to clear one
+      x_rays: attachables.length ? attachables : [""],
+    },
+  });
+};
+
+/** Appends `files`, keeping every X-ray already attached. */
+export const addPatientXRays = (
+  companyId: number,
+  id: number,
+  existingSignedIds: string[],
+  files: File[]
+) => {
+  return replacePatientXRays(companyId, id, [...existingSignedIds, ...files]);
+};
+
+/** Purges a single X-ray by re-sending only the survivors. */
+export const removePatientXRay = (
+  companyId: number,
+  id: number,
+  remainingSignedIds: string[]
+) => {
+  return replacePatientXRays(companyId, id, remainingSignedIds);
+};
+
 export const createPatientAccount = async (
   companyId: number,
   patientId: number,
