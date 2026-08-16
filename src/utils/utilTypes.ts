@@ -21,7 +21,7 @@ export type Attachment = {
   /**
    * ActiveStorage blob signed id. Assigning to a `has_many_attached` replaces
    * the whole collection, so every add/remove has to re-send the survivors by
-   * signed id — see `replacePatientXRays`.
+   * signed id — see `replacePatientAttachments`.
    */
   signed_id: string;
   name: string;

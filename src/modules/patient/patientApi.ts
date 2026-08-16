@@ -69,45 +69,54 @@ export const deletePatient = (companyId: number, id: number) => {
   return deleteFromApi(`/companies/${companyId}/patients/${id}`);
 };
 
+/** The `has_many_attached` collections a patient exposes. */
+export type PatientAttachmentField = "x_rays" | "documents";
+
 /**
- * Sets the patient's X-ray collection to exactly `attachables`.
+ * Sets one of the patient's attachment collections to exactly `attachables`.
  *
- * `has_many_attached :x_rays` replaces on assign (Rails 7.1+), so this is the
- * one primitive both "add" and "remove" are built from: the caller passes the
- * signed ids of every X-ray that should survive, plus any new `File`s. Anything
+ * `has_many_attached` replaces on assign (Rails 7.1+), so this is the one
+ * primitive both "add" and "remove" are built from: the caller passes the
+ * signed ids of every file that should survive, plus any new `File`s. Anything
  * left out is purged by the backend.
  */
-export const replacePatientXRays = (
+export const replacePatientAttachments = (
   companyId: number,
   id: number,
+  field: PatientAttachmentField,
   attachables: (string | File)[]
 ) => {
   return updateToApi(`/companies/${companyId}/patients/${id}`, {
     patient: {
       // an empty collection still has to reach Rails, and an empty array
       // serialises to nothing — [""] is the documented way to clear one
-      x_rays: attachables.length ? attachables : [""],
+      [field]: attachables.length ? attachables : [""],
     },
   });
 };
 
-/** Appends `files`, keeping every X-ray already attached. */
-export const addPatientXRays = (
+/** Appends `files`, keeping everything already attached to `field`. */
+export const addPatientAttachments = (
   companyId: number,
   id: number,
+  field: PatientAttachmentField,
   existingSignedIds: string[],
   files: File[]
 ) => {
-  return replacePatientXRays(companyId, id, [...existingSignedIds, ...files]);
+  return replacePatientAttachments(companyId, id, field, [
+    ...existingSignedIds,
+    ...files,
+  ]);
 };
 
-/** Purges a single X-ray by re-sending only the survivors. */
-export const removePatientXRay = (
+/** Purges a single attachment by re-sending only the survivors. */
+export const removePatientAttachment = (
   companyId: number,
   id: number,
+  field: PatientAttachmentField,
   remainingSignedIds: string[]
 ) => {
-  return replacePatientXRays(companyId, id, remainingSignedIds);
+  return replacePatientAttachments(companyId, id, field, remainingSignedIds);
 };
 
 export const createPatientAccount = async (
