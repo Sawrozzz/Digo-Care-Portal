@@ -1,0 +1,207 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import type { ColumnDef } from "@tanstack/react-table";
+import { Check, Copy } from "lucide-react";
+import { DegoTable } from "../../components/custom/DegoTable";
+import { Badge } from "../../components/ui/badge";
+import { getAllPatientsOfACompany } from "../patient/patientApi";
+import { parsePatientResponse } from "../../utils/appUtils";
+import { BASE_URL } from "../../utils";
+import type { Patient } from "../../utils";
+
+interface CompanyPatientsTableProps {
+  companyId: number;
+}
+
+export default function CompanyPatientsTable({
+  companyId,
+}: CompanyPatientsTableProps) {
+  const navigate = useNavigate();
+
+  const PatientIdCell = ({ row }: { row: any }) => {
+    const [copied, setCopied] = useState(false);
+    const id = row.original.patient_id;
+
+    const handleCopy = async () => {
+      await navigator.clipboard.writeText(id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+      <div className="relative inline-block">
+        <button
+          onClick={handleCopy}
+          title="Click to Copy"
+          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition cursor-pointer"
+        >
+          <span>{id}</span>
+          <span className="opacity-0 group-hover:opacity-100 transition">
+            {copied ? (
+              <Check size={12} className="text-green-600" />
+            ) : (
+              <Copy size={12} />
+            )}
+          </span>
+        </button>
+        {copied && (
+          <span className="absolute -top-6 -right-6 -translate-x-1/2 text-[10px] px-2 py-0.5 rounded text-white bg-gray-400 shadow-sm animate-fade-in">
+            Copied
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  const [data, setData] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!companyId) return;
+
+    let active = true;
+
+    const fetchPatients = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await getAllPatientsOfACompany(Number(companyId));
+        if (active) {
+          setData(
+            parsePatientResponse(response).map((patient) => ({
+              ...patient,
+              name: `${patient.first_name} ${patient.last_name}`.trim(),
+            }))
+          );
+        }
+      } catch (err: any) {
+        if (active) {
+          setError(err.message || "Failed to fetch patients");
+          setData([]);
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    fetchPatients();
+
+    return () => {
+      active = false;
+    };
+  }, [companyId]);
+
+  if (loading) {
+    return (
+      <div className="p-8 text-center text-gray-500">Loading patients...</div>
+    );
+  }
+
+  if (error) {
+    return <div className="p-8 text-center text-red-600">Error: {error}</div>;
+  }
+
+  const columns: ColumnDef<Patient>[] = [
+    {
+      accessorKey: "id",
+      header: "ID",
+      cell: ({ row }) => <p>{`P-#${row.original.id}`}</p>,
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => {
+        const patient = row.original;
+        const name = `${patient.first_name}, ${patient.last_name}`;
+        const avatarUrl = patient.avatar?.url;
+
+        return (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center border-white shadow-sm">
+              {avatarUrl ? (
+                <img
+                  src={
+                    avatarUrl.startsWith("http")
+                      ? avatarUrl
+                      : `${BASE_URL}${avatarUrl}`
+                  }
+                  alt={name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-xs font-medium text-gray-600">
+                  {name?.charAt(0)?.toUpperCase()}
+                </span>
+              )}
+            </div>
+
+            <div
+              onClick={() => navigate(`/patients/${patient.id}`)}
+              className="cursor-pointer hover:bg-gray-50 rounded p-2 transition"
+            >
+              <p className="font-medium text-blue-600 hover:text-blue-800">
+                {name}
+              </p>
+              <p className="text-xs text-gray-500">{patient.email}</p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "patient_id",
+      header: "Patient ID",
+      cell: PatientIdCell,
+    },
+    {
+      accessorKey: "phone",
+      header: "Phone Number",
+      cell: ({ row }) => {
+        const phones = [row.original.phone, row.original.phone2].filter(Boolean);
+
+        return (
+          <div className="flex flex-col gap-1">
+            {phones.map((p, idx) => (
+              <span
+                key={idx}
+                className={
+                  idx === 0
+                    ? "font-semibold text-foreground"
+                    : "text-sm text-muted-foreground"
+                }
+              >
+                {p}
+              </span>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.original.status?.toLowerCase();
+        const statusStyles: any = {
+          active: "bg-green-100 text-green-700 border-green-200",
+          inactive: "bg-gray-100 text-gray-700 border-gray-200",
+          pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
+          archived: "bg-red-100 text-red-700 border-red-200",
+        };
+
+        return (
+          <Badge
+            variant="outline"
+            className={`capitalize px-3 py-2 ${statusStyles[status] || "bg-gray-100 text-gray-600 border-gray-200"}`}
+          >
+            {status}
+          </Badge>
+        );
+      },
+    },
+  ];
+
+  return <DegoTable columns={columns} data={data} searchKey="name" />;
+}

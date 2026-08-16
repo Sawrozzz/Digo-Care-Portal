@@ -13,6 +13,7 @@ type AuthState = {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  clearAuth: () => void;
   fetchCurrentUser: () => Promise<void>;
 };
 
@@ -57,19 +58,21 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     try {
       await apiClient.delete("/logout");
-      localStorage.removeItem("token");
     } catch (error: any) {
       console.error(error);
     } finally {
-      localStorage.removeItem("token");
-      set({
-        account: null,
-        token: null,
-        isAuthenticated: false,
-        loading: false,
-        error: null,
-      });
+      useAuthStore.getState().clearAuth();
     }
+  },
+  clearAuth: () => {
+    localStorage.removeItem("token");
+    set({
+      account: null,
+      token: null,
+      isAuthenticated: false,
+      loading: false,
+      error: null,
+    });
   },
   fetchCurrentUser: async () => {
     try {
@@ -82,7 +85,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAuthenticated: true,
       });
     } catch (err: any) {
-      localStorage.removeItem("token");
       const message =
         err.response?.data?.message ||
         err.response?.data?.error ||

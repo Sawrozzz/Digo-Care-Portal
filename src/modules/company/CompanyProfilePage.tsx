@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { IconUsersGroup } from "@tabler/icons-react";
 import { getSingleCompany } from "./companyApi";
+import CompanyEmployeesTable from "./CompanyEmployeesTable";
+import CompanyPatientsTable from "./CompanyPatientsTable";
 import { Loader } from "../../components/custom/Loader";
 import { Breadcrumb } from "../../components/custom/Breadcrumb";
 import { SiteHeader } from "../../components/ui/site-header";
@@ -202,21 +204,13 @@ export default function CompanyProfilePage() {
       value: "employee",
       label: "Employee",
       icon: <User size={16} />,
-      content: (
-        <div className="bg-white border border-gray-100 rounded-lg p-8 text-center">
-          <h3 className="text-gray-900 font-semibold">Employee List</h3>
-        </div>
-      ),
+      content: <CompanyEmployeesTable companyId={company.id} />,
     },
     {
       value: "patient",
       label: "Patient",
       icon: <IconUsersGroup size={16} />,
-      content: (
-        <div className="bg-white border border-gray-100 rounded-lg p-8 text-center">
-          <h3 className="text-gray-900 font-semibold">Patient List</h3>
-        </div>
-      ),
+      content: <CompanyPatientsTable companyId={company.id} />,
     },
     {
       value: "visit_schedule",

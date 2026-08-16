@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useAuthStore } from "../zustand/authStore";
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -25,6 +26,17 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 304) {
       return error.response;
     }
+
+    if (error.response?.status === 401) {
+      const isLoginRequest = error.config?.url?.includes("/login");
+      const hadToken = !!localStorage.getItem("token");
+
+      if (hadToken && !isLoginRequest) {
+        useAuthStore.getState().clearAuth();
+        window.location.assign("/login");
+      }
+    }
+
     return Promise.reject(error);
   }
 );

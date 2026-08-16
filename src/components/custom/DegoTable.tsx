@@ -112,20 +112,22 @@ export function DegoTable<TData, TValue>({
           {toolbar && <div className="flex items-center gap-2">{toolbar}</div>}
         </div>
 
-        <CustomButton
-          onClick={onAddData}
-          size="sm"
-          className="
-            bg-(--color-primary) hover:bg-(--color-primary-dark)
-            text-white
-            rounded-lg
-            transition-all
-            cursor-pointer
-          "
-        >
-          <IconPlus className="mr-2 h-4 w-4" />
-          Add New
-        </CustomButton>
+        {onAddData && (
+          <CustomButton
+            onClick={onAddData}
+            size="sm"
+            className="
+              bg-(--color-primary) hover:bg-(--color-primary-dark)
+              text-white
+              rounded-lg
+              transition-all
+              cursor-pointer
+            "
+          >
+            <IconPlus className="mr-2 h-4 w-4" />
+            Add New
+          </CustomButton>
+        )}
       </div>
 
       {/* Table container */}
