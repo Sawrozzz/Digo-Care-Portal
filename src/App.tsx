@@ -21,6 +21,7 @@ import PatientPage from "./modules/patient/PatientPageList";
 import PatientProfilePage from "./modules/patient/PatientProfilePage";
 import EmployeeProfilePage from "./modules/employee/EmployeeProfilePage";
 import PatientAssignmentPage from "./modules/patientAssignment/PatientAssignmentList";
+import VisitSchedulePage from "./modules/visitSchedule/VisitScheduleList";
 
 const router = createBrowserRouter([
   {
@@ -100,6 +101,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <PatientAssignmentPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "visit-schedules",
+        element: (
+          <ProtectedRoute>
+            <VisitSchedulePage />
           </ProtectedRoute>
         ),
       },

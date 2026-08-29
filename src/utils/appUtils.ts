@@ -5,6 +5,7 @@ import type {
   Employee,
   Patient,
   PatientAssignment,
+  VisitSchedule,
 } from "./utilTypes";
 
 export const toFormData = (obj: any, form = new FormData(), parentKey = "") => {
@@ -467,5 +468,77 @@ export const parsePatientAssignmentResponse = (
         employee.last_name ?? ""
       }`.trim(),
     } as PatientAssignment & { patient_name?: string; employee_name?: string };
+  });
+};
+
+export const parseVisitScheduleResponse = (response: any): VisitSchedule[] => {
+  const data = response?.data;
+
+  if (!data || !Array.isArray(data)) return [];
+
+  return data.map((item: any) => {
+    const attr = item.attributes;
+
+    const employee = attr.employee
+      ? {
+          id: attr.employee.id,
+          first_name: attr.employee.first_name,
+          middle_name: attr.employee.middle_name,
+          last_name: attr.employee.last_name,
+          phone: attr.employee.phone,
+          email: attr.employee.email,
+          status: attr.employee.status,
+        }
+      : ({} as Employee);
+
+    const patient = attr.patient
+      ? {
+          id: attr.patient.id,
+          patient_id: attr.patient.patient_id,
+          first_name: attr.patient.first_name,
+          middle_name: attr.patient.middle_name,
+          last_name: attr.patient.last_name,
+          phone: attr.patient.phone,
+          email: attr.patient.email,
+          status: attr.patient.status,
+        }
+      : ({} as Patient);
+
+    return {
+      id: attr.id,
+      visit_code: attr.visit_code,
+      title: attr.title,
+      description: attr.description,
+      scheduled_start_at: attr.scheduled_start_at,
+      scheduled_end_at: attr.scheduled_end_at,
+      actual_start_at: attr.actual_start_at ?? null,
+      actual_end_at: attr.actual_end_at ?? null,
+      status: attr.status,
+      visit_type: attr.visit_type,
+      visit_mode: attr.visit_mode,
+      priority: attr.priority,
+      location: attr.location,
+      meeting_link: attr.meeting_link,
+      visit_notes: attr.visit_notes,
+      follow_up_required: attr.follow_up_required,
+      follow_up_date: attr.follow_up_date ?? null,
+      cancelled_at: attr.cancelled_at ?? null,
+      cancellation_reason: attr.cancellation_reason,
+      reminder_at: attr.reminder_at ?? null,
+      reminder_sent_at: attr.reminder_sent_at ?? null,
+      rescheduled_from_id: attr.rescheduled_from_id ?? null,
+      patient_assignment_id: attr.patient_assignment_id,
+      day_of_week: attr.day_of_week ?? null,
+      duration_minutes: attr.duration_minutes ?? null,
+      schedule_label: attr.schedule_label ?? null,
+      employee,
+      patient,
+      patient_name: `${patient.first_name ?? ""} ${
+        patient.last_name ?? ""
+      }`.trim(),
+      employee_name: `${employee.first_name ?? ""} ${
+        employee.last_name ?? ""
+      }`.trim(),
+    } as VisitSchedule & { patient_name?: string; employee_name?: string };
   });
 };

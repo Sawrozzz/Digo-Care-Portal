@@ -13,6 +13,10 @@ export const updateToApi = (url: string, data: any) => {
   return request("PUT", url, data);
 };
 
+export const patchToApi = (url: string, data?: any) => {
+  return request("PATCH", url, data);
+};
+
 export const deleteFromApi = (url: string) => {
   return request("DELETE", url);
 };

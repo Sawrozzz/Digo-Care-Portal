@@ -124,6 +124,38 @@ export type PatientAssignment = {
   patient: Patient;
 };
 
+export type VisitSchedule = {
+  id: number;
+  visit_code: string;
+  title: string;
+  description?: string;
+  scheduled_start_at: Date | string;
+  scheduled_end_at: Date | string;
+  actual_start_at?: Date | string | null;
+  actual_end_at?: Date | string | null;
+  status: string;
+  visit_type?: string;
+  visit_mode?: string;
+  priority?: string;
+  location?: string;
+  meeting_link?: string;
+  visit_notes?: string;
+  follow_up_required?: boolean;
+  follow_up_date?: string | null;
+  cancelled_at?: Date | string | null;
+  cancellation_reason?: string;
+  reminder_at?: Date | string | null;
+  reminder_sent_at?: Date | string | null;
+  rescheduled_from_id?: number | null;
+  patient_assignment_id: number;
+  /** serializer-computed, see VisitScheduleSerializer on the api */
+  day_of_week?: string | null;
+  duration_minutes?: number | null;
+  schedule_label?: string | null;
+  employee: Employee;
+  patient: Patient;
+};
+
 export const roleData: any = {
   admin: "Admin",
   super_admin: "Super Admin",
