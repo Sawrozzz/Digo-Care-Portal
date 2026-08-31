@@ -29,6 +29,7 @@ import type { Patient } from "../../utils";
 import { useCompanyStore } from "../../zustand/companyStore";
 import { CustomTab } from "../../components/custom";
 import { PatientFilesTab } from "./PatientFilesTab";
+import PatientVisitSchedulesList from "./PatientVisitSchedulesList";
 
 /** Rounded surface every overview panel sits on. */
 function InfoCard({
@@ -345,18 +346,24 @@ export default function PatientProfilePage() {
       value: "visits",
       label: "Visits",
       icon: <CalendarRange size={16} />,
-      content: (
-        <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center shadow-sm">
-          <span className="mx-auto mb-3 flex size-14 items-center justify-center rounded-full bg-gray-50 text-gray-400">
-            <CalendarRange size={22} />
-          </span>
-          <h3 className="font-semibold text-gray-900">No visits scheduled</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Visit schedules of the employees assigned to this patient will show
-            up here.
-          </p>
-        </div>
-      ),
+      content:
+        activeCompany?.id && id ? (
+          <PatientVisitSchedulesList
+            companyId={Number(activeCompany.id)}
+            patientId={Number(id)}
+          />
+        ) : (
+          <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center shadow-sm">
+            <span className="mx-auto mb-3 flex size-14 items-center justify-center rounded-full bg-gray-50 text-gray-400">
+              <CalendarRange size={22} />
+            </span>
+            <h3 className="font-semibold text-gray-900">No visits scheduled</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Visit schedules of the employees assigned to this patient will
+              show up here.
+            </p>
+          </div>
+        ),
     },
   ];
 
