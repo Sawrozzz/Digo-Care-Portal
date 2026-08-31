@@ -22,6 +22,8 @@ import type { Employee } from "../../utils";
 
 import { useCompanyStore } from "../../zustand/companyStore";
 import { CustomTab } from "../../components/custom";
+import AssignedPatientsList from "../patientAssignment/AssignedPatientsList";
+import EmployeeVisitSchedulesList from "./EmployeeVisitSchedulesList";
 
 export default function EmployeeProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -228,25 +230,33 @@ export default function EmployeeProfilePage() {
       value: "your_patients",
       label: "Your Patients",
       icon: <CalendarRange size={16} />,
-      content: (
-        <div className="bg-white border border-gray-100 rounded-lg p-8 text-center">
-          <h3 className="text-gray-900 font-semibold">
-            List of your assigned patients
-          </h3>
-        </div>
-      ),
+      content:
+        activeCompany?.id && employee?.id ? (
+          <AssignedPatientsList
+            companyId={Number(activeCompany.id)}
+            employeeId={Number(employee.id)}
+          />
+        ) : (
+          <div className="bg-white border border-gray-100 rounded-lg p-8 text-center text-sm text-gray-500">
+            No company selected
+          </div>
+        ),
     },
     {
       value: "visits",
       label: "Visits",
       icon: <CalendarRange size={16} />,
-      content: (
-        <div className="bg-white border border-gray-100 rounded-lg p-8 text-center">
-          <h3 className="text-gray-900 font-semibold">
-            Visit Schedules of assigned Employees here.
-          </h3>
-        </div>
-      ),
+      content:
+        activeCompany?.id && employee?.id ? (
+          <EmployeeVisitSchedulesList
+            companyId={Number(activeCompany.id)}
+            employeeId={Number(employee.id)}
+          />
+        ) : (
+          <div className="bg-white border border-gray-100 rounded-lg p-8 text-center text-sm text-gray-500">
+            No company selected
+          </div>
+        ),
     },
   ];
 

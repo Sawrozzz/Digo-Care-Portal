@@ -2,6 +2,8 @@ import {
   IconBrandOffice,
   IconDashboard,
   IconUsersGroup,
+  IconStethoscope,
+  IconCalendarClock,
 } from "@tabler/icons-react";
 import { ShieldCheck, User } from "lucide-react";
 
@@ -39,6 +41,18 @@ export const navItems = [
     title: "Employee",
     url: "/employees",
     icon: User,
+    roles: ["super_admin", "admin"],
+  },
+  {
+    title: "Patient Assignment",
+    url: "/patient-assignments",
+    icon: IconStethoscope,
+    roles: ["super_admin", "admin"],
+  },
+  {
+    title: "Visit Schedules",
+    url: "/visit-schedules",
+    icon: IconCalendarClock,
     roles: ["super_admin", "admin"],
   },
 ];

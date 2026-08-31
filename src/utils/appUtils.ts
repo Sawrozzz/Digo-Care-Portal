@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from "dayjs";
-import type { Company, Employee, Patient } from "./utilTypes";
+import type {
+  Company,
+  Employee,
+  Patient,
+  PatientAssignment,
+  VisitSchedule,
+} from "./utilTypes";
 
 export const toFormData = (obj: any, form = new FormData(), parentKey = "") => {
   Object.entries(obj).forEach(([key, value]) => {
@@ -8,6 +14,27 @@ export const toFormData = (obj: any, form = new FormData(), parentKey = "") => {
 
     if (value instanceof File || value instanceof Blob) {
       form.append(fullKey, value);
+      return;
+    }
+
+    // Arrays go out as `field[]` repeated, which is what Rails needs to parse
+    // them as an Array. Indexing them (`field[0]`) would arrive as a Hash and
+    // be rejected by a `permit(field: [])` strong-params rule.
+    if (Array.isArray(value)) {
+      value.forEach((item) => {
+        if (item instanceof File || item instanceof Blob) {
+          form.append(`${fullKey}[]`, item);
+          return;
+        }
+
+        if (item && typeof item === "object" && !(item instanceof Date)) {
+          return toFormData(item, form, `${fullKey}[]`);
+        }
+
+        if (item !== undefined && item !== null) {
+          form.append(`${fullKey}[]`, item as any);
+        }
+      });
       return;
     }
 
@@ -382,4 +409,136 @@ export const parseSingleEmployeeData = (response: any): any | null => {
     created_at: toDateFormat(attr?.created_at).toDate(),
     updated_at: toDateFormat(attr.updated_at).toDate(),
   };
+};
+
+export const parsePatientAssignmentResponse = (
+  response: any
+): PatientAssignment[] => {
+  const data = response?.data;
+
+  if (!data || !Array.isArray(data)) return [];
+
+  return data.map((item: any) => {
+    const attr = item.attributes;
+
+    const employee = attr.employee
+      ? {
+          id: attr.employee.id,
+          first_name: attr.employee.first_name,
+          middle_name: attr.employee.middle_name,
+          last_name: attr.employee.last_name,
+          phone: attr.employee.phone,
+          email: attr.employee.email,
+          status: attr.employee.status,
+        }
+      : ({} as Employee);
+
+    const patient = attr.patient
+      ? {
+          id: attr.patient.id,
+          patient_id: attr.patient.patient_id,
+          first_name: attr.patient.first_name,
+          middle_name: attr.patient.middle_name,
+          last_name: attr.patient.last_name,
+          phone: attr.patient.phone,
+          email: attr.patient.email,
+          status: attr.patient.status,
+        }
+      : ({} as Patient);
+
+    return {
+      id: attr.id,
+      status: attr.status,
+      started_at: attr.started_at,
+      ended_at: attr.ended_at ?? null,
+      notes: attr.notes,
+      priority: attr.priority,
+      reason: attr.reason,
+      assignment_method: attr.assignment_method,
+      room_number: attr.room_number,
+      discharge_date: attr.discharge_date ?? null,
+      discharge_reason: attr.discharge_reason,
+      department: attr.department,
+      employee,
+      patient,
+      patient_name: `${patient.first_name ?? ""} ${
+        patient.last_name ?? ""
+      }`.trim(),
+      employee_name: `${employee.first_name ?? ""} ${
+        employee.last_name ?? ""
+      }`.trim(),
+    } as PatientAssignment & { patient_name?: string; employee_name?: string };
+  });
+};
+
+export const parseVisitScheduleResponse = (response: any): VisitSchedule[] => {
+  const data = response?.data;
+
+  if (!data || !Array.isArray(data)) return [];
+
+  return data.map((item: any) => {
+    const attr = item.attributes;
+
+    const employee = attr.employee
+      ? {
+          id: attr.employee.id,
+          first_name: attr.employee.first_name,
+          middle_name: attr.employee.middle_name,
+          last_name: attr.employee.last_name,
+          phone: attr.employee.phone,
+          email: attr.employee.email,
+          status: attr.employee.status,
+        }
+      : ({} as Employee);
+
+    const patient = attr.patient
+      ? {
+          id: attr.patient.id,
+          patient_id: attr.patient.patient_id,
+          first_name: attr.patient.first_name,
+          middle_name: attr.patient.middle_name,
+          last_name: attr.patient.last_name,
+          phone: attr.patient.phone,
+          email: attr.patient.email,
+          status: attr.patient.status,
+        }
+      : ({} as Patient);
+
+    return {
+      id: attr.id,
+      visit_code: attr.visit_code,
+      title: attr.title,
+      description: attr.description,
+      scheduled_start_at: attr.scheduled_start_at,
+      scheduled_end_at: attr.scheduled_end_at,
+      actual_start_at: attr.actual_start_at ?? null,
+      actual_end_at: attr.actual_end_at ?? null,
+      status: attr.status,
+      visit_type: attr.visit_type,
+      visit_mode: attr.visit_mode,
+      priority: attr.priority,
+      location: attr.location,
+      meeting_link: attr.meeting_link,
+      visit_notes: attr.visit_notes,
+      follow_up_required: attr.follow_up_required,
+      follow_up_date: attr.follow_up_date ?? null,
+      cancelled_at: attr.cancelled_at ?? null,
+      cancellation_reason: attr.cancellation_reason,
+      reminder_at: attr.reminder_at ?? null,
+      reminder_sent_at: attr.reminder_sent_at ?? null,
+      rescheduled_from_id: attr.rescheduled_from_id ?? null,
+      patient_assignment_id: attr.patient_assignment_id,
+      day_of_week: attr.day_of_week ?? null,
+      duration_minutes: attr.duration_minutes ?? null,
+      schedule_label: attr.schedule_label ?? null,
+      employee,
+      patient,
+      patient_name: `${patient.first_name ?? ""} ${
+        patient.last_name ?? ""
+      }`.trim(),
+      employee_name: `${employee.first_name ?? ""} ${
+        employee.last_name ?? ""
+      }`.trim(),
+    } as VisitSchedule & { patient_name?: string; employee_name?: string };
+  });
 };

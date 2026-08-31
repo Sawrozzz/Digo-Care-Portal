@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import {
   User2Icon,
@@ -8,13 +8,16 @@ import {
   Mail,
   Phone,
   Contact,
-  Building2,
   CalendarRange,
-  FileText,
-  Download,
-  Eye,
+  FolderOpen,
+  Scan,
   User,
-  Timer,
+  Cake,
+  Droplet,
+  Heart,
+  BadgeCheck,
+  Hash,
+  ExternalLink,
 } from "lucide-react";
 import { getAPatientsOfACompany } from "./patientApi";
 import { Loader } from "../../components/custom/Loader";
@@ -25,6 +28,87 @@ import type { Patient } from "../../utils";
 
 import { useCompanyStore } from "../../zustand/companyStore";
 import { CustomTab } from "../../components/custom";
+import { PatientFilesTab } from "./PatientFilesTab";
+import PatientVisitSchedulesList from "./PatientVisitSchedulesList";
+
+/** Rounded surface every overview panel sits on. */
+function InfoCard({
+  icon: Icon,
+  title,
+  children,
+  className,
+}: {
+  icon: typeof User;
+  title: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      className={`rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md ${
+        className ?? ""
+      }`}
+    >
+      <header className="mb-5 flex items-center gap-2.5">
+        <span className="flex size-9 items-center justify-center rounded-lg bg-emerald-50 text-(--color-primary-dark) ring-1 ring-emerald-100">
+          <Icon size={17} />
+        </span>
+        <h2 className="font-semibold text-gray-900">{title}</h2>
+      </header>
+      {children}
+    </section>
+  );
+}
+
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon?: typeof User;
+  label: string;
+  value?: ReactNode;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      {Icon && <Icon size={15} className="mt-1 shrink-0 text-gray-400" />}
+      <div className="min-w-0">
+        <dt className="text-[11px] font-semibold tracking-wide text-gray-400 uppercase">
+          {label}
+        </dt>
+        <dd className="mt-0.5 text-sm font-medium break-words text-gray-900">
+          {value || <span className="text-gray-400">—</span>}
+        </dd>
+      </div>
+    </div>
+  );
+}
+
+function Chip({
+  icon: Icon,
+  children,
+}: {
+  icon?: typeof User;
+  children: ReactNode;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+      {Icon && <Icon size={12} className="text-gray-500" />}
+      {children}
+    </span>
+  );
+}
+
+/** `dob` is a free-form string from the API — only show an age we can trust. */
+const ageFrom = (dob?: string) => {
+  if (!dob) return null;
+  const born = new Date(dob);
+  if (Number.isNaN(born.getTime())) return null;
+  const years = Math.floor(
+    (Date.now() - born.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+  );
+  return years >= 0 && years < 130 ? years : null;
+};
 
 export default function PatientProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -33,8 +117,12 @@ export default function PatientProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchPatient = async () => {
+  /**
+   * `silent` refetches keep the page rendered — used after a file upload or
+   * delete, where dropping back to the full-page loader would be jarring.
+   */
+  const loadPatient = useCallback(
+    async (silent = false) => {
       if (!id) {
         setError("Patient ID not found");
         setLoading(false);
@@ -46,7 +134,7 @@ export default function PatientProfilePage() {
       }
 
       try {
-        setLoading(true);
+        if (!silent) setLoading(true);
         const response = await getAPatientsOfACompany(
           Number(activeCompany?.id),
           Number(id)
@@ -57,12 +145,17 @@ export default function PatientProfilePage() {
       } catch (err: any) {
         setError(err.message || "Failed to fetch patient details");
       } finally {
-        setLoading(false);
+        if (!silent) setLoading(false);
       }
-    };
+    },
+    [id, activeCompany?.id]
+  );
 
-    fetchPatient();
-  }, [id, activeCompany?.id]);
+  useEffect(() => {
+    loadPatient();
+  }, [loadPatient]);
+
+  const refreshPatient = useCallback(() => loadPatient(true), [loadPatient]);
 
   if (loading) {
     return (
@@ -75,12 +168,10 @@ export default function PatientProfilePage() {
   if (error || !patient) {
     return (
       <div className="min-h-screen bg-white">
-        {/* Site Header */}
         <SiteHeader name="Patient Profile" />
 
-        {/* Breadcrumb Navigation */}
         <div className="border-b border-gray-100">
-          <div className="px-4 lg:px-6 py-3">
+          <div className="px-4 py-3 lg:px-6">
             <Breadcrumb
               items={[
                 { label: "Patients", path: "/patients" },
@@ -90,10 +181,10 @@ export default function PatientProfilePage() {
           </div>
         </div>
 
-        <div className="px-4 lg:px-6 py-8">
-          <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <p className="text-red-700 font-semibold text-lg">
+        <div className="px-4 py-8 lg:px-6">
+          <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center">
+            <AlertCircle className="mx-auto mb-4 h-16 w-16 text-red-500" />
+            <p className="text-lg font-semibold text-red-700">
               {error || "Patient not found"}
             </p>
           </div>
@@ -108,235 +199,181 @@ export default function PatientProfilePage() {
       : `${BASE_URL}${patient.avatar.url}`
     : null;
 
+  const age = ageFrom(patient.dob);
+  const phones = [patient.phone, patient.phone2].filter(Boolean) as string[];
+  const isActive = patient.status === "active";
+
   const tabData = [
     {
       value: "overview",
       label: "Overview",
       icon: <User2Icon size={16} />,
       content: (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {/* Personal Information*/}
-          <div className="bg-white border border-gray-100 rounded-lg p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <Contact size={20} />
-              <h2 className="text-lg font-bold text-gray-900">
-                General Informations
-              </h2>
-            </div>
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center gap-2 text-gray-500 uppercase tracking-wider">
-                  <User size={14} />
-                  <span className="text-[10px] font-bold">
-                    Gender | Material Status | Blood Group
-                  </span>
-                </div>
-                <p className="text-sm text-gray-900 ml-6 mt-1">
-                  {patient?.gender} | {patient?.marital_status} |{" "}
-                  {patient?.blood_group}
-                </p>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 text-gray-500 uppercase tracking-wider">
-                  <Timer size={14} />
-                  <span className="text-[10px] font-bold">DOB</span>
-                </div>
-                <p className="text-sm text-gray-900 ml-6 mt-1">
-                  {patient?.dob}
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Personal Information */}
+          <InfoCard icon={Contact} title="General Information">
+            <dl className="grid grid-cols-2 gap-5">
+              <InfoRow icon={User} label="Gender" value={patient.gender} />
+              <InfoRow
+                icon={Droplet}
+                label="Blood Group"
+                value={patient.blood_group}
+              />
+              <InfoRow
+                icon={Heart}
+                label="Marital Status"
+                value={patient.marital_status}
+              />
+              <InfoRow
+                icon={Cake}
+                label="Date of Birth"
+                value={
+                  patient.dob
+                    ? `${patient.dob}${age !== null ? ` · ${age} yrs` : ""}`
+                    : undefined
+                }
+              />
+            </dl>
+          </InfoCard>
+
           {/* Contact Card */}
-          <div className="bg-white border border-gray-100 rounded-lg p-6 ">
-            <div className="flex items-center gap-2 mb-6">
-              <Contact size={20} />
-              <h2 className="text-lg font-bold text-gray-900">Contact</h2>
-            </div>
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center gap-2 text-gray-500 uppercase tracking-wider">
-                  <Mail size={14} />
-                  <span className="text-[10px] font-bold">Email</span>
-                </div>
-                <p className="text-sm text-gray-900 ml-6 mt-1">
-                  {patient.email}
-                </p>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 text-gray-500 uppercase tracking-wider">
-                  <Phone size={14} />
-                  <span className="text-[10px] font-bold">Phone</span>
-                </div>
-                <div className="space-y-1 mt-1 ml-6">
-                  {[patient.phone, patient.phone2]
-                    .filter(Boolean)
-                    .map((phone, i) => (
-                      <p key={i} className="text-sm text-gray-900">
-                        {phone}
-                      </p>
-                    ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          <InfoCard icon={Phone} title="Contact">
+            <dl className="space-y-5">
+              <InfoRow
+                icon={Mail}
+                label="Email"
+                value={
+                  patient.email ? (
+                    <a
+                      href={`mailto:${patient.email}`}
+                      className="text-(--color-primary-dark) hover:underline"
+                    >
+                      {patient.email}
+                    </a>
+                  ) : undefined
+                }
+              />
+              <InfoRow
+                icon={Phone}
+                label={phones.length > 1 ? "Phone Numbers" : "Phone"}
+                value={
+                  phones.length ? (
+                    <span className="flex flex-col gap-0.5">
+                      {phones.map((phone) => (
+                        <a
+                          key={phone}
+                          href={`tel:${phone}`}
+                          className="hover:text-(--color-primary-dark)"
+                        >
+                          {phone}
+                        </a>
+                      ))}
+                    </span>
+                  ) : undefined
+                }
+              />
+            </dl>
+          </InfoCard>
 
           {/* Location Card */}
-          {patient.address && (
-            <div className="bg-white border border-gray-100 rounded-lg p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-6">
-                <MapPin size={20} />
-                <h2 className="text-lg font-bold text-gray-900">Location</h2>
-              </div>
+          <InfoCard icon={MapPin} title="Location">
+            {patient.address ? (
+              <>
+                <dl className="grid grid-cols-2 gap-5">
+                  {Object.entries(patient.address).map(([key, value]) => {
+                    if (!value || key === "id" || key === "google_map")
+                      return null;
 
-              <div className="grid grid-cols-2 gap-y-4 gap-x-2">
-                {Object.entries(patient.address).map(([key, value]) => {
-                  if (!value || key === "id") return null;
-
-                  if (key === "google_map") {
                     return (
-                      <div key={key} className="col-span-2 mt-2">
-                        <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">
-                          Map
-                        </p>
-                        <a
-                          href={String(value)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-all"
-                        >
-                          <MapPin size={14} />
-                          View on Google Maps
-                        </a>
-                      </div>
+                      <InfoRow
+                        key={key}
+                        label={key.replace(/_/g, " ")}
+                        value={String(value)}
+                      />
                     );
-                  }
+                  })}
+                </dl>
 
-                  // Standard address fields
-                  return (
-                    <div key={key}>
-                      <p className="text-[10px] text-gray-400 uppercase font-bold mb-0.5">
-                        {key.replace("_", " ")}
-                      </p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {String(value)}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+                {patient.address.google_map && (
+                  <a
+                    href={String(patient.address.google_map)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-5 inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-(--color-primary) hover:text-(--color-primary-dark)"
+                  >
+                    <MapPin size={14} />
+                    View on Google Maps
+                    <ExternalLink size={12} className="text-gray-400" />
+                  </a>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-gray-400">No address on record.</p>
+            )}
+          </InfoCard>
         </div>
       ),
     },
     {
       value: "x_rays",
       label: "Medical X-Rays",
-      icon: <FileText size={16} />,
+      icon: <Scan size={16} />,
       content: (
-        <div className="bg-white border border-gray-100 rounded-lg  overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-            <h2 className="text-lg font-bold text-gray-900">X-Ray Images</h2>
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">
-              {patient?.x_rays?.length || 0} Files
-            </span>
-          </div>
-
-          <div className="divide-y divide-gray-50">
-            {patient?.x_rays && patient.x_rays.length > 0 ? (
-              patient.x_rays.map((doc) => {
-                const fullUrl = doc.url.startsWith("http")
-                  ? doc.url
-                  : `${BASE_URL}${doc.url}`;
-
-                return (
-                  <div
-                    key={doc.id}
-                    className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden shrink-0 cursor-zoom-in border border-gray-200 group relative"
-                        onClick={() => window.open(fullUrl, "_blank")} // Simple preview for now, or use a Modal
-                      >
-                        <img
-                          src={fullUrl}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                          alt="thumbnail"
-                        />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                          <Eye size={16} className="text-white" />
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {doc.name}
-                        </p>
-                        <p className="text-xs text-gray-500 uppercase tracking-tighter">
-                          {(doc.byte_size / 1024).toFixed(2)} KB •{" "}
-                          {new Date(doc.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {/* Download Button */}
-                      <a
-                        href={fullUrl}
-                        download={doc.name}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                        title="Download Image"
-                      >
-                        <Download size={18} />
-                      </a>
-
-                      {/* Full View Button */}
-                      <button
-                        onClick={() => window.open(fullUrl, "_blank")}
-                        className="px-3 py-1.5 text-xs font-bold bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-                      >
-                        View Full
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="p-12 text-center">
-                <p className="text-gray-400 text-sm italic">
-                  No medical X-Rays found for this patient.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+        <PatientFilesTab
+          companyId={Number(activeCompany?.id)}
+          patientId={Number(id)}
+          field="x_rays"
+          files={patient.x_rays ?? []}
+          onChanged={refreshPatient}
+        />
+      ),
+    },
+    {
+      value: "documents",
+      label: "Documents",
+      icon: <FolderOpen size={16} />,
+      content: (
+        <PatientFilesTab
+          companyId={Number(activeCompany?.id)}
+          patientId={Number(id)}
+          field="documents"
+          files={patient.documents ?? []}
+          onChanged={refreshPatient}
+        />
       ),
     },
     {
       value: "visits",
       label: "Visits",
       icon: <CalendarRange size={16} />,
-      content: (
-        <div className="bg-white border border-gray-100 rounded-lg p-8 text-center">
-          <h3 className="text-gray-900 font-semibold">
-            Visit Schedules of assigned Employees here.
-          </h3>
-        </div>
-      ),
+      content:
+        activeCompany?.id && id ? (
+          <PatientVisitSchedulesList
+            companyId={Number(activeCompany.id)}
+            patientId={Number(id)}
+          />
+        ) : (
+          <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center shadow-sm">
+            <span className="mx-auto mb-3 flex size-14 items-center justify-center rounded-full bg-gray-50 text-gray-400">
+              <CalendarRange size={22} />
+            </span>
+            <h3 className="font-semibold text-gray-900">No visits scheduled</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Visit schedules of the employees assigned to this patient will
+              show up here.
+            </p>
+          </div>
+        ),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50/70">
       <SiteHeader name="Patient Profile" />
 
       {/* Breadcrumb Navigation */}
-      <div className="border-b border-gray-100">
-        <div className="px-4 lg:px-6 py-3">
+      <div className="border-b border-gray-100 bg-white">
+        <div className="px-4 py-3 lg:px-6">
           <Breadcrumb
             items={[
               { label: "Patients", path: "/patients" },
@@ -347,39 +384,89 @@ export default function PatientProfilePage() {
       </div>
 
       {/* Main Content */}
-      <div className="px-4 lg:px-6 py-8 max-w-8xl">
-        {/* Top Banner remains same */}
-        <div className="bg-white border border-gray-100 rounded-lg p-6 mb-8 ">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-gray-50 border-2 border-white  flex items-center justify-center shrink-0">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={patient.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <Building2 size={40} className="text-gray-300" />
-              )}
-            </div>
-            <div className="text-center sm:text-left flex-1">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                {patient.name}
-              </h1>
-              <span
-                className={`mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  patient?.status === "active"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-gray-100 text-gray-700"
-                }`}
-              >
-                {patient?.status}
-              </span>
+      <div className="max-w-8xl px-4 py-6 lg:px-6 lg:py-8">
+        {/* Identity banner */}
+        <div className="mb-6 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <div className="h-20 bg-linear-to-r from-(--color-primary) via-(--color-primary-soft) to-teal-200 sm:h-24" />
+
+          <div className="px-6 pb-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+              <div className="-mt-12 flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-50 shadow-md ring-4 ring-white sm:-mt-14 sm:size-28">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={patient.name}
+                    className="size-full object-cover"
+                  />
+                ) : (
+                  <User2Icon size={40} className="text-gray-300" />
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1 sm:pb-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                    {patient.name}
+                  </h1>
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${
+                      isActive
+                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                        : "bg-gray-100 text-gray-600 ring-1 ring-gray-200"
+                    }`}
+                  >
+                    <span
+                      className={`size-1.5 rounded-full ${
+                        isActive ? "bg-emerald-500" : "bg-gray-400"
+                      }`}
+                    />
+                    {patient.status}
+                  </span>
+                  {patient.has_account && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-100">
+                      <BadgeCheck size={12} />
+                      Has account
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                  {patient.patient_id && (
+                    <Chip icon={Hash}>{patient.patient_id}</Chip>
+                  )}
+                  {patient.gender && <Chip icon={User}>{patient.gender}</Chip>}
+                  {patient.blood_group && (
+                    <Chip icon={Droplet}>{patient.blood_group}</Chip>
+                  )}
+                  {age !== null && <Chip icon={Cake}>{age} yrs</Chip>}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 sm:pb-1">
+                {patient.email && (
+                  <a
+                    href={`mailto:${patient.email}`}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-(--color-primary) hover:text-(--color-primary-dark)"
+                  >
+                    <Mail size={15} />
+                    Email
+                  </a>
+                )}
+                {patient.phone && (
+                  <a
+                    href={`tel:${patient.phone}`}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-(--color-primary) hover:text-(--color-primary-dark)"
+                  >
+                    <Phone size={15} />
+                    Call
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Tabs - This now contains your Contact/Location info in the first tab */}
+        {/* Tabs */}
         <CustomTab items={tabData} className="w-full" />
       </div>
     </div>

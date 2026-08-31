@@ -1,90 +1,138 @@
-import { SectionCards } from "../../components/ui/section-cards";
-import { SiteHeader } from "../../components/ui/site-header";
-import { useCompanyStore } from "../../zustand/companyStore";
+import { useMemo } from "react";
+import { HeartPulse, ShieldCheck, Stethoscope, Users } from "lucide-react";
 
+import { Loader } from "../../components/custom";
+import { SiteHeader } from "../../components/ui/site-header";
+import { Card } from "../../components/ui/card";
+import { useCompanyStore } from "../../zustand/companyStore";
+import { CompanyHeroCard } from "./CompanyHeroCard";
+import { CompanyProfileCard } from "./CompanyProfileCard";
+import { EmptyStateIllustration } from "./DashboardIllustrations";
+import { NepaliCalendarCard } from "./NepaliCalendarCard";
+import { RecentRegistrationsCard } from "./RecentRegistrationsCard";
+import { RegistrationTrendCard } from "./RegistrationTrendCard";
+import { SpecializationCard } from "./SpecializationCard";
+import { StatTile } from "./StatTile";
+import { useDashboardData } from "./useDashboardData";
+
+/**
+ * Company dashboard. Everything below the header is scoped to `activeCompany`,
+ * so switching companies in the sidebar re-scopes the whole page.
+ */
 export default function DashboardPageList() {
-  const { activeCompany } = useCompanyStore();
+  const activeCompany = useCompanyStore((state) => state.activeCompany);
+  const companyLoading = useCompanyStore((state) => state.loading);
+
+  const now = useMemo(() => new Date(), []);
+  const { stats, loading, error } = useDashboardData(activeCompany?.id);
+
+  if (companyLoading) {
+    return (
+      <>
+        <SiteHeader name="Dashboard" />
+        <div className="flex flex-1 items-center justify-center py-20">
+          <Loader size={48} />
+        </div>
+      </>
+    );
+  }
+
+  if (!activeCompany) {
+    return (
+      <>
+        <SiteHeader name="Dashboard" />
+        <Card className="items-center gap-3 p-10 text-center">
+          <EmptyStateIllustration className="h-28 w-auto" />
+          <p className="font-medium">No company selected</p>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            Pick a company from the switcher in the sidebar to see its
+            dashboard.
+          </p>
+        </Card>
+      </>
+    );
+  }
+
   return (
     <>
       <SiteHeader name="Dashboard" />
-      <SectionCards />
-      <section className="p-6">
-        <div className="max-w-xl mx-auto bg-white shadow-lg rounded-2xl p-6 border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">
-            Active Company Details
-          </h2>
 
-          <div className="space-y-3 text-sm text-gray-700">
-            <div className="flex justify-between">
-              <span className="font-medium text-gray-500">ID</span>
-              <span>{activeCompany?.id}</span>
-            </div>
+      {/* Refetches hold the previous render rather than flashing a skeleton. */}
+      <div
+        className={
+          loading
+            ? "flex flex-col gap-4 opacity-60 transition-opacity"
+            : "flex flex-col gap-4"
+        }
+      >
+        <CompanyHeroCard company={activeCompany} now={now} />
 
-            <div className="flex justify-between">
-              <span className="font-medium text-gray-500">Name</span>
-              <span>{activeCompany?.name}</span>
-            </div>
+        {error && (
+          <p className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            {error}
+          </p>
+        )}
 
-            <div className="flex justify-between">
-              <span className="font-medium text-gray-500">Email</span>
-              <span>{activeCompany?.email}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="font-medium text-gray-500">Phone</span>
-              <span>{activeCompany?.phone}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="font-medium text-gray-500">Status</span>
-              <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
-                {activeCompany?.status}
-              </span>
-            </div>
-
-            <hr className="my-3" />
-
-            <h3 className="text-sm font-semibold text-gray-600">Address</h3>
-
-            <div className="grid grid-cols-2 gap-2">
-              <p>
-                <span className="text-gray-500">Country:</span>{" "}
-                {activeCompany?.address?.country}
-              </p>
-              <p>
-                <span className="text-gray-500">Province:</span>{" "}
-                {activeCompany?.address?.province}
-              </p>
-              <p>
-                <span className="text-gray-500">Municipality:</span>{" "}
-                {activeCompany?.address?.municipality}
-              </p>
-              <p>
-                <span className="text-gray-500">Ward No:</span>{" "}
-                {activeCompany?.address?.ward_no}
-              </p>
-            </div>
-
-            <div>
-              {activeCompany?.address?.google_map && (
-                <div className="mt-4">
-                  <h3 className="text-sm font-semibold text-gray-600 mb-2">
-                    Location
-                  </h3>
-                  <a
-                    href={activeCompany?.address?.google_map}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline"
-                  >
-                    View on Google Maps
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="grid gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+          <StatTile
+            label="Patients"
+            value={stats.totalPatients}
+            icon={HeartPulse}
+            delta={{ value: stats.newPatientsThisMonth, period: "this month" }}
+            sparkline={{
+              points: stats.patientSparkline,
+              color: "var(--viz-series-1)",
+            }}
+          />
+          <StatTile
+            label="Employees"
+            value={stats.totalEmployees}
+            icon={Users}
+            delta={{ value: stats.newEmployeesThisMonth, period: "this month" }}
+            sparkline={{
+              points: stats.employeeSparkline,
+              color: "var(--viz-series-2)",
+            }}
+          />
+          <StatTile
+            label="Active patients"
+            value={stats.activePatients}
+            icon={Stethoscope}
+            caption="Currently under care"
+            meter={{
+              value: stats.activePatients,
+              total: stats.totalPatients,
+              color: "var(--viz-series-1)",
+            }}
+          />
+          <StatTile
+            label="Portal accounts"
+            value={stats.portalAccounts}
+            icon={ShieldCheck}
+            caption="Staff and patients who can sign in"
+            meter={{
+              value: stats.portalAccounts,
+              total: stats.totalPeople,
+              color: "var(--viz-series-1)",
+            }}
+          />
         </div>
-      </section>
+
+        <div className="grid gap-4 @4xl/main:grid-cols-3">
+          <RegistrationTrendCard
+            trend={stats.trend}
+            className="@4xl/main:col-span-2"
+          />
+          <NepaliCalendarCard />
+
+          <SpecializationCard
+            items={stats.specializations}
+            totalEmployees={stats.totalEmployees}
+          />
+          <RecentRegistrationsCard entries={stats.recent} now={now} />
+          <CompanyProfileCard company={activeCompany} />
+        </div>
+      </div>
     </>
   );
 }

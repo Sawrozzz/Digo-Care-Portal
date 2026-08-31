@@ -58,6 +58,17 @@
 
   /* Borders */
   --border-color: #e5e7eb;
+
+  /*
+   * Data-viz palette. Blue/orange is a validated categorical pair (warm/cool,
+   * clears CVD + normal-vision separation and 3:1 contrast in both modes);
+   * --viz-track is the light step of the blue ramp used for meter tracks.
+   */
+  --viz-series-1: #2a78d6;
+  --viz-series-2: #eb6834;
+  --viz-track: #cde2fb;
+  --viz-grid: #e8eaee;
+  --viz-success: #006300;
 }
 
 .dark {
@@ -92,6 +103,13 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* Same hues, re-stepped for the dark surface — not an automatic flip. */
+  --viz-series-1: #3987e5;
+  --viz-series-2: #d95926;
+  --viz-track: #184f95;
+  --viz-grid: #2c2c2a;
+  --viz-success: #0ca30c;
 }
 
 @theme inline {

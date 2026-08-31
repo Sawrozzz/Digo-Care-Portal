@@ -16,22 +16,23 @@ type Avatar = {
   url: string;
 };
 
-type Document = {
+export type Attachment = {
   id: number;
+  /**
+   * ActiveStorage blob signed id. Assigning to a `has_many_attached` replaces
+   * the whole collection, so every add/remove has to re-send the survivors by
+   * signed id — see `replacePatientAttachments`.
+   */
+  signed_id: string;
   name: string;
   byte_size: number;
   content_type: string;
   url: string;
   created_at: string;
 };
-type X_Ray = {
-  id: number;
-  name: string;
-  byte_size: number;
-  content_type: string;
-  url: string;
-  created_at: string;
-};
+
+type Document = Attachment;
+type X_Ray = Attachment;
 
 export type Account = {
   id: number;
@@ -104,6 +105,55 @@ export type Employee = {
   address?: Address;
   created_at?: Date;
   updated_at?: Date;
+};
+
+export type PatientAssignment = {
+  id: number;
+  status: string;
+  started_at: Date | string;
+  ended_at?: Date | string | null;
+  notes?: string;
+  priority?: string;
+  reason?: string;
+  assignment_method?: string;
+  room_number?: string;
+  discharge_date?: Date | string | null;
+  discharge_reason?: string;
+  department?: string;
+  employee: Employee;
+  patient: Patient;
+};
+
+export type VisitSchedule = {
+  id: number;
+  visit_code: string;
+  title: string;
+  description?: string;
+  scheduled_start_at: Date | string;
+  scheduled_end_at: Date | string;
+  actual_start_at?: Date | string | null;
+  actual_end_at?: Date | string | null;
+  status: string;
+  visit_type?: string;
+  visit_mode?: string;
+  priority?: string;
+  location?: string;
+  meeting_link?: string;
+  visit_notes?: string;
+  follow_up_required?: boolean;
+  follow_up_date?: string | null;
+  cancelled_at?: Date | string | null;
+  cancellation_reason?: string;
+  reminder_at?: Date | string | null;
+  reminder_sent_at?: Date | string | null;
+  rescheduled_from_id?: number | null;
+  patient_assignment_id: number;
+  /** serializer-computed, see VisitScheduleSerializer on the api */
+  day_of_week?: string | null;
+  duration_minutes?: number | null;
+  schedule_label?: string | null;
+  employee: Employee;
+  patient: Patient;
 };
 
 export const roleData: any = {
